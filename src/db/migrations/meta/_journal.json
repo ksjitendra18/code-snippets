@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1752510801228,
+      "tag": "0000_lean_shriek",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1752596006544,
+      "tag": "0001_sloppy_thena",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1752596457140,
+      "tag": "0002_shocking_xavin",
+      "breakpoints": true
+    }
+  ]
+}
