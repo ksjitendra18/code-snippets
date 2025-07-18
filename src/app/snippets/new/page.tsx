@@ -1,4 +1,5 @@
 import { AddNewSnippet } from "@/features/snippets/components/new-snippet";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "New Snippet",
@@ -8,7 +9,9 @@ export const metadata = {
 export default async function NewSnippet() {
   return (
     <>
-      <AddNewSnippet />
+      <Suspense>
+        <AddNewSnippet />
+      </Suspense>
     </>
   );
 }
