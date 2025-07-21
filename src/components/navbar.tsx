@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   LogIn,
   Menu,
+  Search,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -55,7 +56,10 @@ export default function Navbar({ currentUser }: NavbarProps) {
   const navItems = [
     { label: "Home", href: "/", icon: Home },
     ...(currentUser
-      ? [{ label: "Snippets", href: "/snippets", icon: Code2 }]
+      ? [
+          { label: "Snippets", href: "/snippets", icon: Code2 },
+          { label: "Search", href: "/snippets/search", icon: Search },
+        ]
       : []),
     // { label: "Snippets", href: "/snippets", icon: Code2 },
 

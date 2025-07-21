@@ -25,6 +25,8 @@ export const snippets = sqliteTable(
   (t) => [index("snippets_createdby").on(t.createdBy)]
 );
 
+export type Snippet = typeof snippets.$inferSelect
+
 export const favoriteSnippets = sqliteTable(
   "favorite_snippets",
   {

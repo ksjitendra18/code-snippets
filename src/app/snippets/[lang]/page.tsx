@@ -30,7 +30,18 @@ export default async function LanguagePage({ params }: { params: Params }) {
         </Button>
       </section>
 
-      <section className="my-5 flex gap-5 flex-col">
+      {/* <section className="my-5 flex gap-5 flex-col">
+        {allSnippets.map((snippet) => (
+          <Link
+            href={`/snippets/${lang}/${snippet.id}`}
+            key={snippet.id}
+            className="flex border-2 border-gray-400 px-5 py-3 rounded-md items-center gap-5"
+          >
+            <h2 className="text-xl font-bold">{snippet.title}</h2>
+          </Link>
+        ))}
+      </section> */}
+      <section className="my-5 grid grid-cols-2 gap-4 md:grid-cols-3 items-center">
         {allSnippets.map((snippet) => (
           <Link
             href={`/snippets/${lang}/${snippet.id}`}
