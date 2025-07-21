@@ -108,7 +108,7 @@ export const CodeSnippetSearch: React.FC = () => {
           }),
         });
 
-        const response = await fetch(`/api/search?${params}`);
+        const response = await fetch(`/api/snippets/search?${params}`);
         const data: SearchResponse = await response.json();
 
         if (response.ok) {
@@ -378,4 +378,3 @@ export const CodeSnippetSearch: React.FC = () => {
     </div>
   );
 };
-
