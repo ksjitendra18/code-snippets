@@ -8,6 +8,24 @@ export const languages = [
   "CSS",
 ];
 
+//  const languages: string[] = [
+//     "javascript",
+//     "typescript",
+//     "python",
+//     "java",
+//     "cpp",
+//     "c",
+//     "csharp",
+//     "php",
+//     "ruby",
+//     "go",
+//     "rust",
+//     "swift",
+//     "kotlin",
+//     "html",
+//     "css",
+//     "sql",
+//   ];
 export const programmingLanguages = [
   {
     name: "Dotnet / C#",

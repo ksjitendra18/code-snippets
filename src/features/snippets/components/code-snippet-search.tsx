@@ -10,6 +10,7 @@ import {
   Copy,
   ExternalLink,
 } from "lucide-react";
+import { languages } from "../constant";
 
 // Types
 interface CodeSnippet {
@@ -49,26 +50,6 @@ export const CodeSnippetSearch: React.FC = () => {
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [totalHits, setTotalHits] = useState<number>(0);
   const [searchTime, setSearchTime] = useState<number>(0);
-
-  // Available languages for filter
-  const languages: string[] = [
-    "javascript",
-    "typescript",
-    "python",
-    "java",
-    "cpp",
-    "c",
-    "csharp",
-    "php",
-    "ruby",
-    "go",
-    "rust",
-    "swift",
-    "kotlin",
-    "html",
-    "css",
-    "sql",
-  ];
 
   // Debounced search function
   const debounce = <T extends (...args: any[]) => any>(
@@ -186,17 +167,15 @@ export const CodeSnippetSearch: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Search Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-gray-900">
-          Code Snippet Search
+          Search Code Snippets
         </h1>
         <p className="text-gray-600">
           Find and discover code snippets instantly
         </p>
       </div>
 
-      {/* Search Bar */}
       <div className="relative">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -220,7 +199,6 @@ export const CodeSnippetSearch: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters */}
       {showFilters && (
         <div className="bg-gray-50 p-4 rounded-lg space-y-4">
           <div>
@@ -244,7 +222,6 @@ export const CodeSnippetSearch: React.FC = () => {
         </div>
       )}
 
-      {/* Search Stats */}
       {(query || filters.language || filters.tags.length > 0) && (
         <div className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded">
           <span>
@@ -256,7 +233,6 @@ export const CodeSnippetSearch: React.FC = () => {
         </div>
       )}
 
-      {/* Search Results */}
       <div className="space-y-4">
         {loading && (
           <div className="flex items-center justify-center py-8">
@@ -275,99 +251,98 @@ export const CodeSnippetSearch: React.FC = () => {
         )}
 
         {results.map((snippet, index) => (
-          <div
+          <a
             key={snippet.id || index}
-            className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+            href={`/snippets/${snippet.language}/${snippet.id}`}
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  {snippet._formatted?.title ? (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: snippet._formatted.title,
-                      }}
-                    />
-                  ) : (
-                    snippet.title
-                  )}
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  {snippet._formatted?.description ? (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: snippet._formatted.description,
-                      }}
-                    />
-                  ) : (
-                    snippet.description
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center space-x-2 ml-4">
-                <button
-                  onClick={() => copyToClipboard(snippet.code)}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded"
-                  title="Copy to clipboard"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Code Preview */}
-            <div className="bg-gray-50 rounded-md p-3 mb-3 overflow-x-auto">
-              <pre className="text-sm text-gray-800 whitespace-pre-wrap">
-                <code className={`language-${snippet.language}`}>
-                  {snippet.code?.length > 300
-                    ? `${snippet.code.substring(0, 300)}...`
-                    : snippet.code}
-                </code>
-              </pre>
-            </div>
-
-            {/* Metadata */}
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Code className="w-3 h-3" />
-                  <span className="font-medium text-blue-600">
-                    {snippet.language}
-                  </span>
+            <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    {snippet._formatted?.title ? (
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: snippet._formatted.title,
+                        }}
+                      />
+                    ) : (
+                      snippet.title
+                    )}
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    {snippet._formatted?.description ? (
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: snippet._formatted.description,
+                        }}
+                      />
+                    ) : (
+                      snippet.description
+                    )}
+                  </p>
                 </div>
-                {snippet.createdAt && (
+                <div className="flex items-center space-x-2 ml-4">
+                  <button
+                    onClick={() => copyToClipboard(snippet.code)}
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded"
+                    title="Copy to clipboard"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Code Preview */}
+              <div className="bg-gray-50 rounded-md p-3 mb-3 overflow-x-auto">
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap">
+                  <code className={`language-${snippet.language}`}>
+                    {snippet.code?.length > 300
+                      ? `${snippet.code.substring(0, 300)}...`
+                      : snippet.code}
+                  </code>
+                </pre>
+              </div>
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{formatDate(snippet.createdAt)}</span>
+                    <Code className="w-3 h-3" />
+                    <span className="font-medium text-blue-600">
+                      {snippet.language}
+                    </span>
                   </div>
-                )}
-                {snippet.tags && snippet.tags.length > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <Tag className="w-3 h-3" />
-                    <div className="flex space-x-1">
-                      {snippet.tags.slice(0, 3).map((tag, tagIndex) => (
-                        <span
-                          key={tagIndex}
-                          className="bg-gray-200 px-2 py-0.5 rounded text-xs"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {snippet.tags.length > 3 && (
-                        <span className="text-gray-400">
-                          +{snippet.tags.length - 3} more
-                        </span>
-                      )}
+                  {snippet.createdAt && (
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(snippet.createdAt)}</span>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {snippet.tags && snippet.tags.length > 0 && (
+                    <div className="flex items-center space-x-1">
+                      <Tag className="w-3 h-3" />
+                      <div className="flex space-x-1">
+                        {snippet.tags.slice(0, 3).map((tag, tagIndex) => (
+                          <span
+                            key={tagIndex}
+                            className="bg-gray-200 px-2 py-0.5 rounded text-xs"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {snippet.tags.length > 3 && (
+                          <span className="text-gray-400">
+                            +{snippet.tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
 
-      {/* Load More or Pagination could go here */}
       {results.length > 0 && results.length < totalHits && (
         <div className="text-center">
           <p className="text-sm text-gray-500">

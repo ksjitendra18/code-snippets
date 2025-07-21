@@ -1,3 +1,4 @@
+import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import { snippets } from "@/db/schema";
@@ -20,6 +21,7 @@ export default async function LanguagePage({ params }: { params: Params }) {
   console.log("allSnippets", allSnippets);
   return (
     <>
+      <BreadCrumbs />
       <section className="flex my-5 mb-10 items-center gap-5">
         <h1 className="text-2xl font-bold"> {langInfo?.name} Snippets</h1>
         <Button asChild>
