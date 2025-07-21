@@ -1,5 +1,10 @@
 import { searchCodeSnippets } from "@/lib/meilisearch";
 
+interface Filters {
+  language?: string;
+  // add other optional properties as needed
+}
+
 export const GET = async (req: Request) => {
   try {
     const url = new URL(req.url);
@@ -12,11 +17,11 @@ export const GET = async (req: Request) => {
     console.log("q", q);
     console.log("language", language);
 
-    const filters = {};
+    const filters: Filters = {};
     if (language) filters.language = language;
     // if (tags) filters.tags = tags.split(",");
 
-    const results = await searchCodeSnippets(q, filters);
+    const results = await searchCodeSnippets(q ?? "", filters);
 
     return Response.json({
       hits: results.hits,

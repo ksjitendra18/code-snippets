@@ -1,5 +1,5 @@
 import { Snippet } from "@/db/schema";
-import { MeiliSearch } from "meilisearch";
+import { MeiliSearch, SearchParams } from "meilisearch";
 
 const client = new MeiliSearch({
   host: process.env.MEILISEARCH_HOST || "http://localhost:7700",
@@ -29,6 +29,12 @@ type NewSnippetIndex = Pick<
   Snippet,
   "id" | "title" | "description" | "language" | "code" | "createdAt"
 >;
+
+interface Filters {
+  language?: string;
+  tags?: string[];
+  // add other optional properties as needed
+}
 export const addCodeSnippet = async (snippet: NewSnippetIndex) => {
   const index = client.index("code-snippets");
   return await index.addDocuments([
@@ -43,10 +49,10 @@ export const addCodeSnippet = async (snippet: NewSnippetIndex) => {
   ]);
 };
 
-export const searchCodeSnippets = async (query: string, filters = {}) => {
+export const searchCodeSnippets = async (query: string, filters: Filters) => {
   const index = client.index("code-snippets");
 
-  const searchParams = {
+  const searchParams:SearchParams = {
     q: query,
     limit: 20,
     attributesToHighlight: ["title", "description"],
