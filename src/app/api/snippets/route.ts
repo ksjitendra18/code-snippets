@@ -1,9 +1,18 @@
 import { db } from "@/db";
 import { snippets } from "@/db/schema";
+import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
 
 export const POST = async (req: Request) => {
   try {
+    const { user } = await checkAuthentication();
+
+    if (!user)
+      return Response.json(
+        { error: { message: "Unauthorized" } },
+        { status: 401 }
+      );
+
     const { title, description, code, language } = await req.json();
 
     const snippet = await db
@@ -11,7 +20,7 @@ export const POST = async (req: Request) => {
       .values({
         title,
         description,
-        createdBy: 1,
+        createdBy: user.id,
         code,
         language,
       })
@@ -19,7 +28,7 @@ export const POST = async (req: Request) => {
 
     await initializeIndex();
 
-    const r = await addCodeSnippet({
+    await addCodeSnippet({
       id: snippet[0].id,
       title,
       description,
@@ -27,8 +36,6 @@ export const POST = async (req: Request) => {
       code,
       createdAt: snippet[0].createdAt,
     });
-
-    console.log("r", r);
 
     return new Response(JSON.stringify(snippet), {
       status: 201,

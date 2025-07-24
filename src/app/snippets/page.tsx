@@ -1,9 +1,16 @@
 import { Button } from "@/components/ui/button";
+import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { programmingLanguages } from "@/features/snippets/constant";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function SnippetsPage() {
+  const { user } = await checkAuthentication();
+
+  if (!user) {
+    return redirect(`/login?redirectTo=${`/snippets`}`);
+  }
   return (
     <>
       <section className="flex my-5 mb-10 items-center gap-5">
