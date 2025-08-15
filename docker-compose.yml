@@ -24,7 +24,7 @@ services:
     volumes:
       - valkey-data:/bitnami/valkey/data
 
-    qdrant:
+  qdrant:
       image: qdrant/qdrant:latest
       container_name: qdrant
       environment:
@@ -36,7 +36,7 @@ services:
         - qdrant_storage:/qdrant/storage
       restart: unless-stopped
 
-    meilisearch:
+  meilisearch:
       image: getmeili/meilisearch:latest
       container_name: meilisearch
       restart: unless-stopped
