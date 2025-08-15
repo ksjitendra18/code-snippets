@@ -30,13 +30,28 @@ services:
       environment:
         - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
       ports:
-        - "7333:7333"
-        - "7334:7334"    
+        - 127.0.0.1:7333:7333
+        - 127.0.0.1:7334:7334
       volumes:
         - qdrant_storage:/qdrant/storage
       restart: unless-stopped
+
+    meilisearch:
+      image: getmeili/meilisearch:latest
+      container_name: meilisearch
+      restart: unless-stopped
+      ports:
+        - "127.0.0.1:7701:7701"
+      environment:
+        - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
+        - MEILI_ENV=production
+      volumes:
+        - meili_data:/meili_data
+      command: meilisearch
+
 
 volumes:
   valkey-data:
   postgres-data:
   qdrant_storage:
+  meili_data:

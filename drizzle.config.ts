@@ -9,10 +9,13 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   out: "./src/db/migrations",
   schema: "./src/db/schema/index.ts",
-  dialect: "turso",
+  dialect: "postgresql",
 
   dbCredentials: {
-    url: process.env.DB_URL!,
-    authToken: process.env.DB_TOKEN!,
+    database: process.env.POSTGRES_DB!,
+    host: process.env.POSTGRES_HOST!,
+    password: process.env.POSTGRES_PASSWORD!,
+    port: parseInt(process.env.POSTGRES_PORT!),
+    user: process.env.POSTGRES_USER!,
   },
 });
