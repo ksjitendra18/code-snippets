@@ -26,7 +26,7 @@ services:
 
   qdrant:
       image: qdrant/qdrant:latest
-      container_name: qdrant
+      container_name: snippets-qdrant
       environment:
         - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
       ports:
@@ -38,7 +38,7 @@ services:
 
   meilisearch:
       image: getmeili/meilisearch:latest
-      container_name: meilisearch
+      container_name: snippets-meilisearch
       restart: unless-stopped
       ports:
         - "127.0.0.1:7701:7701"
