@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: snippets-db
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 127.0.0.1:7432:7432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  valkey:
+    container_name: snippets-valkey
+    image: docker.io/bitnami/valkey:latest
+    restart: unless-stopped
+    environment:
+      - VALKEY_PASSWORD=${VALKEY_PASSWORD}
+      - VALKEY_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - 127.0.0.1:7379:7379
+    volumes:
+      - valkey-data:/bitnami/valkey/data
+
+    qdrant:
+      image: qdrant/qdrant:latest
+      container_name: qdrant
+      environment:
+        - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
+      ports:
+        - "7333:7333"
+        - "7334:7334"    
+      volumes:
+        - qdrant_storage:/qdrant/storage
+      restart: unless-stopped
+
+volumes:
+  valkey-data:
+  postgres-data:
+  qdrant_storage:
