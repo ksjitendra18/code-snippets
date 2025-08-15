@@ -2,7 +2,7 @@ import { Snippet, SnippetVersion } from "@/db/schema";
 import { MeiliSearch, SearchParams } from "meilisearch";
 
 const client = new MeiliSearch({
-  host: process.env.MEILISEARCH_HOST || "http://localhost:7700",
+  host: process.env.MEILISEARCH_HOST || "http://localhost:7701",
   apiKey: process.env.MEILISEARCH_API_KEY,
 });
 
