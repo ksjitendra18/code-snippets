@@ -9,131 +9,6 @@ import { Calendar, Clock, Copy, GitBranch, History, User } from "lucide-react";
 import { useState } from "react";
 import { GetSnippetDataById } from "../data";
 
-const mockVersions = [
-  {
-    id: 1,
-    version: "1.0.0",
-    title: "React Component with useState Hook",
-    code: `import React, { useState } from 'react';
-
-export default function Counter() {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>
-        Click me
-      </button>
-    </div>
-  );
-}`,
-    language: "javascript",
-    changeDescription: "Initial version with basic counter functionality",
-    createdAt: new Date("2024-01-10T09:00:00"),
-    author: "You",
-    isCurrent: false,
-  },
-  {
-    id: 2,
-    version: "1.1.0",
-    title: "Enhanced Counter with Reset",
-    code: `import React, { useState } from 'react';
-
-export default function Counter() {
-  const [count, setCount] = useState(0);
-
-  const increment = () => setCount(count + 1);
-  const decrement = () => setCount(count - 1);
-  const reset = () => setCount(0);
-
-  return (
-    <div className="counter">
-      <h2>Counter: {count}</h2>
-      <div className="buttons">
-        <button onClick={increment}>+</button>
-        <button onClick={decrement}>-</button>
-        <button onClick={reset}>Reset</button>
-      </div>
-    </div>
-  );
-}`,
-    language: "javascript",
-    changeDescription:
-      "Added decrement and reset functionality with better styling",
-    createdAt: new Date("2024-01-12T14:30:00"),
-    author: "You",
-    isCurrent: false,
-  },
-  {
-    id: 3,
-    version: "2.0.0",
-    title: "TypeScript Counter with Custom Hook",
-    code: `import React, { useState, useCallback } from 'react';
-
-interface CounterProps {
-  initialValue?: number;
-  step?: number;
-}
-
-const useCounter = (initialValue = 0, step = 1) => {
-  const [count, setCount] = useState(initialValue);
-
-  const increment = useCallback(() => {
-    setCount(prev => prev + step);
-  }, [step]);
-
-  const decrement = useCallback(() => {
-    setCount(prev => prev - step);
-  }, [step]);
-
-  const reset = useCallback(() => {
-    setCount(initialValue);
-  }, [initialValue]);
-
-  return { count, increment, decrement, reset };
-};
-
-export default function Counter({ initialValue = 0, step = 1 }: CounterProps) {
-  const { count, increment, decrement, reset } = useCounter(initialValue, step);
-
-  return (
-    <div className="p-4 max-w-sm mx-auto bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-4">
-        Counter: {count}
-      </h2>
-      <div className="flex gap-2 justify-center">
-        <button 
-          onClick={increment}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          +{step}
-        </button>
-        <button 
-          onClick={decrement}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          -{step}
-        </button>
-        <button 
-          onClick={reset}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
-          Reset
-        </button>
-      </div>
-    </div>
-  );
-}`,
-    language: "typescript",
-    changeDescription:
-      "Converted to TypeScript, added custom hook, props support, and Tailwind styling",
-    createdAt: new Date("2024-01-15T16:45:00"),
-    author: "You",
-    isCurrent: true,
-  },
-];
-
 export function SnippetContent({ snippet }: { snippet: GetSnippetDataById }) {
   const versions = snippet.versions;
   const [selectedVersion, setSelectedVersion] = useState(
@@ -233,7 +108,7 @@ export function SnippetContent({ snippet }: { snippet: GetSnippetDataById }) {
                       )}
                     </div>
                     <span className="text-xs text-gray-500">
-                      {version.createdAt.toLocaleDateString()}
+                      {version?.createdAt?.toLocaleDateString()}
                     </span>
                   </div>
                   <h4 className="font-medium text-sm mb-1">{version.title}</h4>

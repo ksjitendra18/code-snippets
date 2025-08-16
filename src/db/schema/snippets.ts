@@ -54,7 +54,7 @@ export const snippetVersions = pgTable(
     approvedBy: integer()
       .references(() => users.id)
       .notNull(),
-    createdAt: timestamp({ withTimezone: true }).defaultNow(),
+    createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true, mode: "string" }).$onUpdateFn(
       () => new Date().toISOString()
     ),
