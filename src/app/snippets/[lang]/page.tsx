@@ -1,7 +1,6 @@
 import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
-import { snippets } from "@/db/schema";
 import { programmingLanguages } from "@/features/snippets/constant";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +20,7 @@ export default async function LanguagePage({ params }: { params: Params }) {
       versions: {
         where: {
           isCurrent: true,
-        }
+        },
       },
     },
   });
