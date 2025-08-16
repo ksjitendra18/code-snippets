@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - 127.0.0.1:7432:7432
+      - 127.0.0.1:7432:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
   valkey:
@@ -30,8 +30,8 @@ services:
       environment:
         - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
       ports:
-        - 127.0.0.1:7333:7333
-        - 127.0.0.1:7334:7334
+        - 127.0.0.1:7333:6333
+        - 127.0.0.1:7334:6334
       volumes:
         - qdrant_storage:/qdrant/storage
       restart: unless-stopped
@@ -41,7 +41,7 @@ services:
       container_name: snippets-meilisearch
       restart: unless-stopped
       ports:
-        - "127.0.0.1:7701:7701"
+        - "127.0.0.1:7701:7700"
       environment:
         - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
         - MEILI_ENV=production
