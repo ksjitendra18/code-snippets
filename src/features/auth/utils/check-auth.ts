@@ -26,7 +26,8 @@ export async function checkAuthentication() {
         user: {
           columns: {
             id: true,
-            
+            role: true,
+            pfId: true,
           },
         },
       },

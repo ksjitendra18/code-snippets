@@ -59,9 +59,9 @@ importers:
       openai:
         specifier: ^5.10.2
         version: 5.10.2(ws@8.18.3)(zod@4.0.10)
-      postgres:
-        specifier: ^3.4.7
-        version: 3.4.7
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -77,6 +77,9 @@ importers:
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
       zod:
         specifier: ^4.0.10
         version: 4.0.10
@@ -3047,6 +3050,10 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
@@ -5490,15 +5497,13 @@ snapshots:
   pg-cloudflare@1.2.7:
     optional: true
 
-  pg-connection-string@2.9.1:
-    optional: true
+  pg-connection-string@2.9.1: {}
 
   pg-int8@1.0.1: {}
 
   pg-pool@3.10.1(pg@8.16.3):
     dependencies:
       pg: 8.16.3
-    optional: true
 
   pg-protocol@1.10.3: {}
 
@@ -5519,12 +5524,10 @@ snapshots:
       pgpass: 1.0.5
     optionalDependencies:
       pg-cloudflare: 1.2.7
-    optional: true
 
   pgpass@1.0.5:
     dependencies:
       split2: 4.2.0
-    optional: true
 
   picocolors@1.1.1: {}
 
@@ -5556,7 +5559,8 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  postgres@3.4.7: {}
+  postgres@3.4.7:
+    optional: true
 
   prelude-ls@1.2.1: {}
 
@@ -5802,8 +5806,7 @@ snapshots:
 
   space-separated-tokens@1.1.5: {}
 
-  split2@4.2.0:
-    optional: true
+  split2@4.2.0: {}
 
   stable-hash@0.0.5: {}
 
@@ -6012,6 +6015,8 @@ snapshots:
   use-sync-external-store@1.5.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+
+  uuid@11.1.0: {}
 
   web-streams-polyfill@3.3.3:
     optional: true

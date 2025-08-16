@@ -1,7 +1,11 @@
-import { AUTH_CONSTANTS } from "@/features/auth/constant";
+import {
+  AUTH_CONSTANTS,
+  PASSWORD_RESET_COOKIE_TIMEOUT,
+} from "@/features/auth/constant";
 import { getUser } from "@/features/auth/data";
 import { createSession } from "@/features/auth/services/session";
 import { aesEncrypt, EncryptionPurpose } from "@/features/auth/utils/aes";
+import { generateNonce } from "@/features/auth/utils/nonce";
 import { verifyPassword } from "@/features/auth/utils/password";
 import { LoginSchema } from "@/features/auth/validations/login";
 
@@ -59,6 +63,38 @@ export const POST = async (req: Request) => {
       );
     }
 
+    const cookieStore = await cookies();
+
+    if (existingUser.shouldChangePassword) {
+      const expiresAt = new Date().getTime() + PASSWORD_RESET_COOKIE_TIMEOUT;
+
+      const data = {
+        pfId: existingUser.pfId,
+        nonce: generateNonce(),
+        expiresAt,
+      };
+      const encryptedData = aesEncrypt(
+        JSON.stringify(data),
+        EncryptionPurpose.PASSWORD_RESET
+      );
+
+      cookieStore.set(AUTH_CONSTANTS.PASSWORD_RESET_COOKIE, encryptedData, {
+        expires: new Date(expiresAt),
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+
+      return Response.json(
+        {
+          success: true,
+          redirectTo: `/reset-password?first_login=true`,
+        },
+        { status: 200 }
+      );
+    }
+
     const { session, expiresAt } = await createSession({
       userId: existingUser.id,
     });
@@ -68,7 +104,7 @@ export const POST = async (req: Request) => {
       EncryptionPurpose.SESSION_COOKIE_SECRET
     );
 
-    const cookieStore = await cookies();
+    
 
     cookieStore.set(AUTH_CONSTANTS.SESSION_COOKIE, encryptedSessionId, {
       expires: new Date(expiresAt),

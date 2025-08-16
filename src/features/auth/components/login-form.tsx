@@ -43,7 +43,7 @@ export function LoginForm() {
         return;
       }
 
-      const resp = await fetch("/api/auth/login", {
+      const loginResponse = await fetch("/api/auth/login", {
         method: "POST",
 
         body: JSON.stringify({
@@ -52,11 +52,18 @@ export function LoginForm() {
         }),
       });
 
-      if (resp.status === 200) {
-        router.push("/snippets");
-        router.refresh();
+      if (loginResponse.status === 200) {
+        const loginData = await loginResponse.json();
+
+        if (loginData.redirectTo) {
+          router.push(loginData.redirectTo);
+          router.refresh();
+        } else {
+          router.push("/snippets");
+          router.refresh();
+        }
       } else {
-        const error = await resp.json();
+        const error = await loginResponse.json();
         setError({
           isError: true,
           message: error.error.message,

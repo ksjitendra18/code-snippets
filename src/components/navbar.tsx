@@ -4,28 +4,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import {
-  Book,
-  Code2,
-  DollarSign,
-  GraduationCap,
-  Home,
-  LayoutDashboard,
-  LogIn,
-  Menu,
-  Search,
-} from "lucide-react";
+import { Code2, Home, LogIn, Menu, Search, Users2 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { AuthenticationData } from "@/features/auth/utils/check-auth";
 
@@ -34,15 +15,6 @@ type NavbarProps = {
 };
 
 type CurrentUser = AuthenticationData["user"];
-
-// type CurrentUser = {
-//   userId: string;
-//   name: string;
-//   email: string;
-//   role: string;
-//   staff: boolean;
-//   avatar?: string;
-// } | null;
 
 export default function Navbar({ currentUser }: NavbarProps) {
   const pathName = usePathname();
@@ -59,6 +31,15 @@ export default function Navbar({ currentUser }: NavbarProps) {
       ? [
           { label: "Snippets", href: "/snippets", icon: Code2 },
           { label: "Search", href: "/snippets/search", icon: Search },
+          ...(currentUser?.role === "SUPER_ADMIN"
+            ? [
+                {
+                  label: "User Management",
+                  href: "/user-management",
+                  icon: Users2,
+                },
+              ]
+            : []),
         ]
       : []),
     // { label: "Snippets", href: "/snippets", icon: Code2 },
