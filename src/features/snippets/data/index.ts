@@ -1,9 +1,10 @@
 import { db } from "@/db";
 
-export const getSnippetDataById = async (id: string) => {
+export const getSnippetDataById = async (id: string | number) => {
   return await db.query.snippets.findFirst({
     where: { id: Number(id) },
     columns: {
+      id: true,
       language: true,
     },
     with: {
@@ -21,6 +22,9 @@ export const getSnippetDataById = async (id: string) => {
           createdAt: true,
           isCurrent: true,
           id: true,
+        },
+        orderBy: {
+          createdAt: "desc",
         },
         with: {
           author: {

@@ -5,11 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, Copy, GitBranch, History, User } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Copy,
+  GitBranch,
+  History,
+  Pencil,
+  User,
+} from "lucide-react";
 import { useState } from "react";
 import { GetSnippetDataById } from "../data";
 
-export function SnippetContent({ snippet }: { snippet: GetSnippetDataById }) {
+import { toast } from "sonner";
+import Link from "next/link";
+
+export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
   const versions = snippet.versions;
   const [selectedVersion, setSelectedVersion] = useState(
     versions.find((v) => v.isCurrent) || versions[0]
@@ -20,9 +31,20 @@ export function SnippetContent({ snippet }: { snippet: GetSnippetDataById }) {
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {selectedVersion.title}
-            </h1>
+            <div className="flex items-center gap-4 mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 ">
+                {selectedVersion.title}
+              </h1>
+
+              <Button variant={"outline"} asChild>
+                <Link
+                  href={`/snippets/${snippet.language}/${snippet.id}/new-version`}
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Link>
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-sm">
                 <GitBranch className="h-3 w-3 mr-1" />v{selectedVersion.version}
@@ -148,6 +170,12 @@ function CopyButton({ code }: { code: string }) {
     <Button
       variant="outline"
       size="sm"
+      onClick={async () => {
+        await navigator.clipboard.writeText(code);
+        toast.success("Copied to clipboard", {
+          position: "top-center",
+        });
+      }}
       className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
     >
       <Copy className="h-4 w-4 mr-1" />

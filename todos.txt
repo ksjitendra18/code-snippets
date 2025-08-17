@@ -1,0 +1,2 @@
+1. Decide on what to do with the old version. Should it be removed from index and vector db or not?
+2. 

@@ -1,6 +1,6 @@
 import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
-import { SnippetContent } from "@/features/snippets/components/display-snippet";
+import { DisplaySnippet } from "@/features/snippets/components/display-snippet";
 import { getSnippetDataById } from "@/features/snippets/data";
 import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
@@ -20,7 +20,6 @@ function CopyButton({ code }: { code: string }) {
   );
 }
 
-// Not found component
 function NotFound() {
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center">
@@ -58,8 +57,6 @@ function NotFound() {
   );
 }
 
-
-
 export default async function SnippetPage({ params }: { params: Params }) {
   const { snippetId } = await params;
 
@@ -69,8 +66,6 @@ export default async function SnippetPage({ params }: { params: Params }) {
   const currentSnippet = snippetData?.versions.find((v) => v.isCurrent);
 
   if (!currentSnippet) return <NotFound />;
-
-  console.log("snippetData", snippetData, currentSnippet);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,7 +80,7 @@ export default async function SnippetPage({ params }: { params: Params }) {
           />
         </div>
 
-        {!snippetData ? <NotFound /> : <SnippetContent snippet={snippetData} />}
+        {!snippetData ? <NotFound /> : <DisplaySnippet snippet={snippetData} />}
       </div>
     </div>
   );
