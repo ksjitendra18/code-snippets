@@ -10,9 +10,7 @@ const NotFound = () => {
 export default async function NewVersionPage({ params }: { params: Params }) {
   const { snippetId } = await params;
 
-  console.log("snippetId", snippetId);
   const snippetData = await getSnippetDataById(snippetId);
-  console.log("snippetData", snippetData);
 
   if (!snippetData) {
     return <NotFound />;

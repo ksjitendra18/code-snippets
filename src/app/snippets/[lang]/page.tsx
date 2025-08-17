@@ -24,7 +24,6 @@ export default async function LanguagePage({ params }: { params: Params }) {
       },
     },
   });
-  console.log("allSnippets", allSnippets);
   return (
     <>
       <BreadCrumbs />

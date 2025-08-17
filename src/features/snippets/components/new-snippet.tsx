@@ -28,8 +28,6 @@ export function AddNewSnippet() {
       const code = formData.get("code") as string;
       const language = formData.get("language") as string;
 
-      console.log(title, description, code, language);
-
       const resp = await fetch("/api/snippets", {
         method: "POST",
         headers: {

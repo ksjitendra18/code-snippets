@@ -24,8 +24,6 @@ export const createSnippet = async ({
     })
     .returning({ id: snippets.id, createdAt: snippets.createdAt });
 
-  console.log("new snippet", newSnippet);
-
   if (!newSnippet[0]) throw new Error("Error creating snippet");
 
   await db.insert(snippetVersions).values({
@@ -69,9 +67,6 @@ export const editSnippet = async ({
     })
     .where(eq(snippetVersions.snippetId, id));
 
-  console.log("updating......................");
-  console.log("code", code);
-  console.log("updating......................");
   return await db
     .insert(snippetVersions)
     .values({

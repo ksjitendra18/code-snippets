@@ -4,6 +4,7 @@ import { createSnippet, editSnippet } from "@/features/snippets/services";
 import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet";
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
+import { addNewSnippetToCollection } from "@/lib/qdrant";
 import { z } from "zod/mini";
 
 export const POST = async (req: Request) => {
@@ -38,7 +39,7 @@ export const POST = async (req: Request) => {
       createdBy: user.id,
       language,
       title,
-      
+
       description,
       code,
     });
@@ -54,6 +55,13 @@ export const POST = async (req: Request) => {
       createdAt: snippet.createdAt,
     });
 
+    await addNewSnippetToCollection({
+      id: snippet.id,
+      title,
+      description,
+      language,
+      code,
+    });
     return Response.json(
       {
         success: true,
@@ -105,10 +113,6 @@ export const PATCH = async (req: Request) => {
     }
 
     const { title, description, code, changeType, snippetId } = result.data;
-
-    console.log("saving......................");
-    console.log("code", code);
-    console.log("saving......................");
 
     const snippetData = await getSnippetDataById(snippetId);
 

@@ -1,5 +1,4 @@
 export function generateNewVersion(currentVersion: string, type: string) {
-  console.log("recevied", currentVersion);
   const versionParts = currentVersion.split(".").map((part) => parseInt(part));
 
   if (versionParts.length !== 3 || versionParts.some(isNaN)) {

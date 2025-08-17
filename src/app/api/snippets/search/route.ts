@@ -14,9 +14,6 @@ export const GET = async (req: Request) => {
     const q = url.searchParams.get("q");
     const language = url.searchParams.get("language");
 
-    console.log("q", q);
-    console.log("language", language);
-
     const filters: Filters = {};
     if (language) filters.language = language;
     // if (tags) filters.tags = tags.split(",");

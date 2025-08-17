@@ -39,9 +39,6 @@ export default async function ResetPassword({ searchParams }: PageProps) {
 
     const userData = await getUser({ pfId: data.pfId });
 
-    console.log("User data", data, userData);
-    console.log(userData?.id === data.pfId ? "eq" : "uneq");
-
     if (
       !userData ||
       userData.pfId !== data.pfId ||

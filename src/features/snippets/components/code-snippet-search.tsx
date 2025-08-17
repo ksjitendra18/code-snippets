@@ -11,6 +11,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { languages } from "../constant";
+import { toast } from "sonner";
+import Link from "next/link";
 
 // Types
 interface CodeSnippet {
@@ -135,8 +137,7 @@ export const CodeSnippetSearch: React.FC = () => {
   const copyToClipboard = async (code: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(code);
-      // You could add a toast notification here
-      console.log("Code copied to clipboard!");
+      toast.success("Code copied to clipboard");
     } catch (err) {
       console.error("Failed to copy: ", err);
     }
@@ -251,7 +252,7 @@ export const CodeSnippetSearch: React.FC = () => {
         )}
 
         {results.map((snippet, index) => (
-          <a
+          <Link
             key={snippet.id || index}
             href={`/snippets/${snippet.language}/${snippet.id}`}
           >
@@ -339,7 +340,7 @@ export const CodeSnippetSearch: React.FC = () => {
                 </div>
               </div>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
 

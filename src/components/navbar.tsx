@@ -90,7 +90,7 @@ export default function Navbar({ currentUser }: NavbarProps) {
             {renderNavItems()}
             {currentUser ? (
               <>
-                <Button>Logout</Button>
+                <Button onClick={handleLogout}>Logout</Button>
               </>
             ) : (
               <Button asChild>
