@@ -14,7 +14,6 @@ import { languages } from "../constant";
 import { toast } from "sonner";
 import Link from "next/link";
 
-// Types
 interface CodeSnippet {
   id: string;
   title: string;
@@ -53,7 +52,6 @@ export const CodeSnippetSearch: React.FC = () => {
   const [totalHits, setTotalHits] = useState<number>(0);
   const [searchTime, setSearchTime] = useState<number>(0);
 
-  // Debounced search function
   const debounce = <T extends (...args: any[]) => any>(
     func: T,
     wait: number

@@ -41,6 +41,7 @@ export const snippetVersions = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    changeDescription: text("change_description"),
     code: text("code").notNull(),
     version: text("version").notNull(),
     isCurrent: boolean().default(false).notNull(),
