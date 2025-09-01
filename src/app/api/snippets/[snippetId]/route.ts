@@ -3,12 +3,11 @@ import { snippets } from "@/db/schema";
 import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { eq } from "drizzle-orm";
 
-export const DELETE = async ({
-  params,
-}: {
-  params: Promise<{ snippetId: string }>;
-}) => {
-  const { snippetId } = await params;
+export const DELETE = async (
+  request: Request,
+  context: { params: Promise<{ snippetId: string }> }
+) => {
+  const { snippetId } = await context.params;
 
   const { isAuthenticated, user } = await checkAuthentication();
 
