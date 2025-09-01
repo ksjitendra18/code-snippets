@@ -38,9 +38,9 @@ export const Home = () => {
     },
     {
       icon: <Lock className="w-8 h-8" />,
-      title: "Access Control",
+      title: "Improved Security and Code Quality",
       description:
-        "Role-based permissions ensuring secure access across IT, cybersecurity, compliance, and operations",
+        "Built-in best practices and automated security scanning for all submissions",
     },
   ];
 
