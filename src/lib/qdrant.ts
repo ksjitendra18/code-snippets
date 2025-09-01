@@ -1,6 +1,6 @@
+import { Snippet, SnippetVersion } from "@/db/schema";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { generateEmbedding } from "./embedding";
-import { Snippet, SnippetVersion } from "@/db/schema";
 
 export const qdrantClient = new QdrantClient({
   url: process.env.QDRANT_URL,
@@ -26,6 +26,7 @@ export const addNewSnippetToCollection = async (snippet: NewSnippetIndex) => {
         id: snippet.id,
         vector: embedding,
         payload: {
+          id: snippet.id,
           language: snippet.language,
           title: snippet.title,
         },

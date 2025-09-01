@@ -2,6 +2,7 @@ import {
   boolean,
   index,
   integer,
+  json,
   pgEnum,
   pgTable,
   text,
@@ -87,4 +88,20 @@ export const favoriteSnippets = pgTable(
     index("snippet_favorites_snippet").on(t.snippetId),
     index("snippet_favorites_user").on(t.userId),
   ]
+);
+
+export const snippetAIAnalysis = pgTable(
+  "snippet_ai_analysis",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    snippetId: integer()
+      .references(() => snippets.id, { onDelete: "cascade" })
+      .notNull(),
+    codeFunctionality: text().notNull(),
+    optimizations: json().notNull(),
+    additionalRecommendations: text(),
+
+    createdAt: timestamp({ withTimezone: true }).defaultNow(),
+  },
+  (t) => [index("snippet_analysis_snippet").on(t.snippetId)]
 );

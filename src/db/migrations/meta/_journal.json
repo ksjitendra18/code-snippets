@@ -15,6 +15,13 @@
       "when": 1755361869427,
       "tag": "0001_lucky_spitfire",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756665671528,
+      "tag": "0002_massive_puck",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { generateEmbedding } from "@/lib/embedding";
 import { qdrantClient } from "@/lib/qdrant";
+import language from "react-syntax-highlighter/dist/esm/languages/hljs/1c";
 
 export const GET = async (req: Request) => {
   try {
@@ -7,6 +8,7 @@ export const GET = async (req: Request) => {
 
     const q = url.searchParams.get("q");
 
+    const now = performance.now();
     const vector = await generateEmbedding(q!);
 
     const collections = await qdrantClient.getCollections();
@@ -27,7 +29,43 @@ export const GET = async (req: Request) => {
       with_payload: true,
     });
 
-    return Response.json(results);
+    const processingTime = performance.now() - now;
+    if (results.length === 0)
+      return Response.json({
+        hits: [],
+        totalHits: results.length,
+        processingTime,
+        query: q!,
+      });
+
+    const modifiedResults = results
+      .filter((r) => r.score > 0.3)
+      .map((r) => ({
+        id: r.payload?.id ?? "",
+        title: r.payload?.title ?? "",
+        language: r.payload?.language ?? "",
+        score: r.score,
+      }));
+
+    console.log("Modified results:", modifiedResults);
+    return Response.json({
+      hits: modifiedResults,
+      totalHits: modifiedResults.length,
+      processingTime,
+      query: q!,
+      rawResults: results,
+    });
+    // return Response.json({
+    //   hits: results.map((r) => ({
+    //     id: r.payload?.id ?? "",
+    //     title: r.payload?.title ?? "",
+    //     language: r.payload?.language ?? "",
+    //   })),
+    //   totalHits: results.length,
+    //   processingTime,
+    //   query: q!,
+    //   rawResults: results,
+    // });
   } catch (error) {
     console.log("Error while searching snippet", error);
     return Response.json(

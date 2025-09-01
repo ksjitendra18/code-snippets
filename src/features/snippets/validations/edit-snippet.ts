@@ -14,6 +14,12 @@ export const EditSnippetSchema = z.object({
       z.minLength(3, "Description must be at least 3 characters"),
       z.maxLength(500, "Description must be at most 500 characters")
     ),
+  changeDescription: z
+    .string({ error: "Change Description is required" })
+    .check(
+      z.minLength(3, "Change Description must be at least 3 characters"),
+      z.maxLength(500, "Change Description must be at most 500 characters")
+    ),
   code: z
     .string({ error: "Code is required" })
     .check(

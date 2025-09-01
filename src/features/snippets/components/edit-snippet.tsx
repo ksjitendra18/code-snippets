@@ -42,6 +42,7 @@ export function EditSnippet({
 
       const title = formData.get("title") as string;
       const description = formData.get("description") as string;
+      const changeDescription = formData.get("changeDescription") as string;
       const code = formData.get("code") as string;
       const language = formData.get("language") as string;
 
@@ -53,6 +54,7 @@ export function EditSnippet({
         body: JSON.stringify({
           title,
           description,
+          changeDescription,
           code,
           changeType,
           snippetId: Number(snippetId),
@@ -100,7 +102,18 @@ export function EditSnippet({
           </select>
         </div>
 
-        {/* <div>Current Version: {version}</div> */}
+        <div className="mt-4">
+          <label htmlFor="changeDescription" className="block">
+            Change Description
+          </label>
+          <textarea
+            className="border-2 border-gray-400  outline-black w-full rounded-md p-2"
+            id="changeDescription"
+            name="changeDescription"
+            placeholder="Change Description"
+          ></textarea>
+        </div>
+
         {newVersion && <div className="mt-2">New Version: {newVersion}</div>}
         <div className="mt-4">
           <label htmlFor="title" className="block">
@@ -116,7 +129,7 @@ export function EditSnippet({
           />
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 hidden">
           <label htmlFor="description" className="block">
             Description
           </label>

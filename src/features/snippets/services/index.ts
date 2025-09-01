@@ -48,6 +48,7 @@ export const editSnippet = async ({
   changeType,
   createdBy,
   oldVersion,
+  changeDescription,
 }: {
   id: number;
   title: string;
@@ -56,6 +57,7 @@ export const editSnippet = async ({
   changeType: "major" | "minor" | "patch";
   createdBy: number;
   oldVersion: string;
+  changeDescription: string;
 }) => {
   const versionNumber = generateNewVersion(oldVersion, changeType);
 
@@ -77,6 +79,7 @@ export const editSnippet = async ({
       code,
       isCurrent: true,
       title,
+      changeDescription,
       description,
     })
     .returning({

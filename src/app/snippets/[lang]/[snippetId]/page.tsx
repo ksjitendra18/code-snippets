@@ -1,7 +1,13 @@
 import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+  AIAnalysisData,
+  AIAnalysisDisplay,
+} from "@/features/snippets/components/ai-analysis";
 import { DisplaySnippet } from "@/features/snippets/components/display-snippet";
 import { getSnippetDataById } from "@/features/snippets/data";
+import { getAIAnalysisBySnippetId } from "@/features/snippets/services/ai-analysis";
 import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
 
@@ -67,6 +73,14 @@ export default async function SnippetPage({ params }: { params: Params }) {
 
   if (!currentSnippet) return <NotFound />;
 
+  const aiAnalysis = await getAIAnalysisBySnippetId(parseInt(snippetId));
+
+  const parsedAnalysis: AIAnalysisData | undefined = aiAnalysis && {
+    ...aiAnalysis,
+    optimizations: aiAnalysis.optimizations as AIAnalysisData["optimizations"],
+    createdAt: aiAnalysis.createdAt?.toISOString() ?? new Date().toISOString(),
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -81,6 +95,15 @@ export default async function SnippetPage({ params }: { params: Params }) {
         </div>
 
         {!snippetData ? <NotFound /> : <DisplaySnippet snippet={snippetData} />}
+
+        {parsedAnalysis && (
+          <>
+            <Separator className="my-12" />
+            <div className="bg-white rounded-lg p-8">
+              <AIAnalysisDisplay analysis={parsedAnalysis} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

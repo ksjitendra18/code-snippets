@@ -24,6 +24,16 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.snippets.id,
       to: r.snippetVersions.snippetId,
     }),
+    aiAnalysis: r.one.snippetAIAnalysis({
+      from: r.snippets.id,
+      to: r.snippetAIAnalysis.snippetId,
+    }),
+  },
+  snippetAIAnalysis: {
+    snippet: r.one.snippets({
+      from: r.snippetAIAnalysis.snippetId,
+      to: r.snippets.id,
+    }),
   },
   snippetVersions: {
     snippet: r.one.snippets({

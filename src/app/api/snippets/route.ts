@@ -1,6 +1,7 @@
 import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { getSnippetDataById } from "@/features/snippets/data";
 import { createSnippet, editSnippet } from "@/features/snippets/services";
+import { createAiAnalysis } from "@/features/snippets/services/ai-analysis";
 import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet";
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
@@ -44,7 +45,16 @@ export const POST = async (req: Request) => {
       code,
     });
 
+    await createAiAnalysis({
+      title,
+      description,
+      code,
+      language,
+      snippetId: snippet.id,
+    });
     await initializeIndex();
+
+    // TODO: OPTIMIZE: Only add code snippet to index if AI analysis is successful
 
     await addCodeSnippet({
       id: snippet.id,
@@ -86,6 +96,7 @@ export const POST = async (req: Request) => {
     );
   }
 };
+
 export const PATCH = async (req: Request) => {
   try {
     const { user } = await checkAuthentication();
@@ -112,7 +123,14 @@ export const PATCH = async (req: Request) => {
       );
     }
 
-    const { title, description, code, changeType, snippetId } = result.data;
+    const {
+      title,
+      description,
+      code,
+      changeType,
+      snippetId,
+      changeDescription,
+    } = result.data;
 
     const snippetData = await getSnippetDataById(snippetId);
 
@@ -136,6 +154,7 @@ export const PATCH = async (req: Request) => {
       changeType,
       createdBy: user.id,
       oldVersion: snippetData.versions[0].version,
+      changeDescription,
     });
 
     await initializeIndex();
@@ -157,7 +176,7 @@ export const PATCH = async (req: Request) => {
       { status: 200 }
     );
   } catch (error) {
-    console.log("Error while creating snippet", error);
+    console.log("Error while editing snippet", error);
     return Response.json(
       {
         error: {
