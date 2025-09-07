@@ -17,7 +17,7 @@ export const NewSnippetSchema = z.object({
     .string({ error: "Code is required" })
     .check(
       z.minLength(3, "Code must be at least 3 characters"),
-      z.maxLength(5000, "Code must be at most 5000 characters")
+      z.maxLength(10000, "Code must be at most 10_000 characters")
     ),
   language: z
     .string({ error: "Language is required" })

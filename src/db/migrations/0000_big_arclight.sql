@@ -1,4 +1,4 @@
-CREATE TYPE "public"."user_role" AS ENUM('admin', 'user');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('SUPER_ADMIN', 'ADMIN', 'USER');--> statement-breakpoint
 CREATE TABLE "favorite_snippets" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "favorite_snippets_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"snippetId" integer NOT NULL,
@@ -9,10 +9,20 @@ CREATE TABLE "favorite_snippets" (
 	CONSTRAINT "unique_snippet_favorite" UNIQUE("snippetId","userId")
 );
 --> statement-breakpoint
+CREATE TABLE "snippet_ai_analysis" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "snippet_ai_analysis_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"snippetId" integer NOT NULL,
+	"codeFunctionality" text NOT NULL,
+	"optimizations" json NOT NULL,
+	"additionalRecommendations" text,
+	"createdAt" timestamp with time zone DEFAULT now()
+);
+--> statement-breakpoint
 CREATE TABLE "snippets_version" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "snippets_version_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"title" text NOT NULL,
 	"description" text NOT NULL,
+	"change_description" text,
 	"code" text NOT NULL,
 	"version" text NOT NULL,
 	"isCurrent" boolean DEFAULT false NOT NULL,
@@ -20,7 +30,7 @@ CREATE TABLE "snippets_version" (
 	"createdBy" integer NOT NULL,
 	"isApproved" boolean DEFAULT false NOT NULL,
 	"approvedBy" integer NOT NULL,
-	"createdAt" timestamp with time zone DEFAULT now(),
+	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone
 );
 --> statement-breakpoint
@@ -58,6 +68,7 @@ CREATE TABLE "users" (
 --> statement-breakpoint
 ALTER TABLE "favorite_snippets" ADD CONSTRAINT "favorite_snippets_snippetId_snippets_id_fk" FOREIGN KEY ("snippetId") REFERENCES "public"."snippets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "favorite_snippets" ADD CONSTRAINT "favorite_snippets_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "snippet_ai_analysis" ADD CONSTRAINT "snippet_ai_analysis_snippetId_snippets_id_fk" FOREIGN KEY ("snippetId") REFERENCES "public"."snippets"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "snippets_version" ADD CONSTRAINT "snippets_version_snippetId_snippets_id_fk" FOREIGN KEY ("snippetId") REFERENCES "public"."snippets"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "snippets_version" ADD CONSTRAINT "snippets_version_createdBy_users_id_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "snippets_version" ADD CONSTRAINT "snippets_version_approvedBy_users_id_fk" FOREIGN KEY ("approvedBy") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -66,6 +77,7 @@ ALTER TABLE "snippets" ADD CONSTRAINT "snippets_approvedBy_users_id_fk" FOREIGN 
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 CREATE INDEX "snippet_favorites_snippet" ON "favorite_snippets" USING btree ("snippetId");--> statement-breakpoint
 CREATE INDEX "snippet_favorites_user" ON "favorite_snippets" USING btree ("userId");--> statement-breakpoint
+CREATE INDEX "snippet_analysis_snippet" ON "snippet_ai_analysis" USING btree ("snippetId");--> statement-breakpoint
 CREATE INDEX "snippets_version_createdby" ON "snippets_version" USING btree ("createdBy");--> statement-breakpoint
 CREATE INDEX "snippets_createdby" ON "snippets" USING btree ("createdBy");--> statement-breakpoint
 CREATE INDEX "sessions_userid" ON "sessions" USING btree ("userId");

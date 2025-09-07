@@ -18,6 +18,12 @@ export const hashPassword = async ({
   }
 };
 
+hashPassword({
+  password: "Jitendra@18",
+}).then((hashedPassword) => {
+  console.log("Hashed password:", hashedPassword);
+});
+
 export const verifyPassword = async ({
   enteredPassword,
   hashedPassword,

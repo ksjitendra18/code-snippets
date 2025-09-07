@@ -1,5 +1,5 @@
 {
-  "id": "7ab6ec8b-d5ee-45c0-a065-d4d839fd4894",
+  "id": "27b52ed0-d04d-47f0-ba1e-df6943674a99",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -134,6 +134,97 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.snippet_ai_analysis": {
+      "name": "snippet_ai_analysis",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "snippet_ai_analysis_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "snippetId": {
+          "name": "snippetId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codeFunctionality": {
+          "name": "codeFunctionality",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "optimizations": {
+          "name": "optimizations",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "additionalRecommendations": {
+          "name": "additionalRecommendations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "snippet_analysis_snippet": {
+          "name": "snippet_analysis_snippet",
+          "columns": [
+            {
+              "expression": "snippetId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "snippet_ai_analysis_snippetId_snippets_id_fk": {
+          "name": "snippet_ai_analysis_snippetId_snippets_id_fk",
+          "tableFrom": "snippet_ai_analysis",
+          "tableTo": "snippets",
+          "columnsFrom": [
+            "snippetId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.snippets_version": {
       "name": "snippets_version",
       "schema": "",
@@ -166,6 +257,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "change_description": {
+          "name": "change_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "code": {
           "name": "code",
@@ -215,7 +312,7 @@
           "name": "createdAt",
           "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updatedAt": {
@@ -589,8 +686,9 @@
       "name": "user_role",
       "schema": "public",
       "values": [
-        "admin",
-        "user"
+        "SUPER_ADMIN",
+        "ADMIN",
+        "USER"
       ]
     }
   },

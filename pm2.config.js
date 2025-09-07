@@ -11,5 +11,10 @@ module.exports = {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
       },
     },
+    {
+      name: "snippets-worker",
+      script: "./scripts/worker.ts",
+      interpreter: "bun",
+    },
   ],
 };

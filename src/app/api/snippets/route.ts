@@ -6,6 +6,7 @@ import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet"
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
 import { addNewSnippetToCollection } from "@/lib/qdrant";
+import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
 import { z } from "zod/mini";
 
 export const POST = async (req: Request) => {
@@ -36,6 +37,7 @@ export const POST = async (req: Request) => {
 
     const { title, description, code, language } = result.data;
 
+    console.log("Creating snippet...", new Date());
     const snippet = await createSnippet({
       createdBy: user.id,
       language,
@@ -45,13 +47,32 @@ export const POST = async (req: Request) => {
       code,
     });
 
-    await createAiAnalysis({
+    console.log("Snippet created:", snippet);
+
+    // await createAiAnalysis({
+    //   title,
+    //   description,
+    //   code,
+    //   language,
+    //   snippetId: snippet.id,
+    // });
+
+    console.log("Adding AI Analysis job...", new Date());
+    const aiAnalysisJob = await addSummaryJob({
       title,
       description,
       code,
       language,
       snippetId: snippet.id,
     });
+
+    console.log(
+      "AI Analysis job ID:",
+      aiAnalysisJob.id,
+      aiAnalysisJob,
+      "for snippet",
+      snippet.id
+    );
     await initializeIndex();
 
     // TODO: OPTIMIZE: Only add code snippet to index if AI analysis is successful
@@ -65,13 +86,30 @@ export const POST = async (req: Request) => {
       createdAt: snippet.createdAt,
     });
 
-    await addNewSnippetToCollection({
-      id: snippet.id,
-      title,
-      description,
-      language,
-      code,
+    // await addNewSnippetToCollection({
+    //   id: snippet.id,
+    //   title,
+    //   description,
+    //   language,
+    //   code,
+    // });
+    const newSnippetIndexJob = await addSnippetToQdrantIndexJob({
+      data: {
+        id: snippet.id,
+        title,
+        description,
+        language,
+        code,
+      },
+      priority: 1,
     });
+    console.log(
+      "New Snippet index job ID:",
+      newSnippetIndexJob.id,
+      newSnippetIndexJob,
+      "for snippet",
+      snippet.id
+    );
     return Response.json(
       {
         success: true,
