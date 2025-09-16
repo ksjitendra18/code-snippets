@@ -18,6 +18,7 @@ export const getSnippetDataById = async (id: string | number) => {
           title: true,
           version: true,
           description: true,
+          changeDescription: true,
           code: true,
           createdAt: true,
           isCurrent: true,

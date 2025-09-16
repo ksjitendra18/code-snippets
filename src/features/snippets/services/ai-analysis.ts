@@ -89,6 +89,19 @@ export const createAiAnalysis = async ({
 
     temperature: 0.3,
   });
+  // const { object: analysis } = await generateObject({
+  //   model: openai("gpt-4o-mini"),
+  //   schema: AIAnalysisSchema,
+  //   prompt: createAnalysisPrompt({
+  //     code,
+  //     description,
+  //     language,
+  //     title,
+  //     tags: [],
+  //   }),
+
+  //   temperature: 0.3,
+  // });
 
   if (existingAnalysis) {
     await db

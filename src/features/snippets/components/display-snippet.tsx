@@ -55,10 +55,16 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
         </div>
 
         {selectedVersion.description && (
+          <div className="   mb-4">
+            <h3 className="font-medium text-black mb-1">Description:</h3>
+            <p className=" text-sm">{selectedVersion.description}</p>
+          </div>
+        )}
+        {selectedVersion.changeDescription && (
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
             <h3 className="font-medium text-blue-900 mb-1">What's New:</h3>
             <p className="text-blue-800 text-sm">
-              {selectedVersion.description}
+              {selectedVersion.changeDescription}
             </p>
           </div>
         )}
