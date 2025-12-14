@@ -1,13 +1,10 @@
 import { generateEmbedding } from "@/lib/embedding";
 import { qdrantClient } from "@/lib/qdrant";
-import language from "react-syntax-highlighter/dist/esm/languages/hljs/1c";
+import { NextRequest } from "next/server";
 
-export const GET = async (req: Request) => {
+export async function GET(request: NextRequest) {
+  const q = request.nextUrl.searchParams.get("q");
   try {
-    const url = new URL(req.url);
-
-    const q = url.searchParams.get("q");
-
     const now = performance.now();
     const vector = await generateEmbedding(q!);
 
@@ -47,7 +44,6 @@ export const GET = async (req: Request) => {
         score: r.score,
       }));
 
-    console.log("Modified results:", modifiedResults);
     return Response.json({
       hits: modifiedResults,
       totalHits: modifiedResults.length,
@@ -67,7 +63,7 @@ export const GET = async (req: Request) => {
     //   rawResults: results,
     // });
   } catch (error) {
-    console.log("Error while searching snippet", error);
+    console.log("Error while semantic searching snippet", error);
     return Response.json(
       {
         error: {
@@ -78,4 +74,4 @@ export const GET = async (req: Request) => {
       { status: 500 }
     );
   }
-};
+}

@@ -4,9 +4,8 @@ import { aesDecrypt, EncryptionPurpose } from "@/features/auth/utils/aes";
 import { cookies } from "next/headers";
 
 export const GET = async (req: Request) => {
+  const cookieStore = await cookies();
   try {
-    const cookieStore = await cookies();
-
     const authCookie = cookieStore.get(AUTH_CONSTANTS.SESSION_COOKIE);
     if (!authCookie) {
       return Response.json(

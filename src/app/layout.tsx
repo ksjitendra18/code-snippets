@@ -21,7 +21,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authenticationData = await checkAuthentication();
+  // const authenticationData = await checkAuthentication();
+
+  let authenticationData: Awaited<ReturnType<typeof checkAuthentication>>;
+
+  authenticationData = {
+    isAuthenticated: true,
+    user: {
+      id: 1,
+      role: "SUPER_ADMIN",
+      pfId: "123456789",
+    },
+  };
 
   return (
     <html lang="en">

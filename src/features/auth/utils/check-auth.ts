@@ -4,9 +4,8 @@ import { aesDecrypt, EncryptionPurpose } from "@/features/auth/utils/aes";
 import { cookies } from "next/headers";
 
 export async function checkAuthentication() {
+  const cookiesStore = await cookies();
   try {
-    const cookiesStore = await cookies();
-
     const sessionToken = cookiesStore.get(AUTH_CONSTANTS.SESSION_COOKIE)?.value;
 
     if (!sessionToken) {

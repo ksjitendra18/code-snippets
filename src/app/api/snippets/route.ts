@@ -1,11 +1,9 @@
 import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { getSnippetDataById } from "@/features/snippets/data";
 import { createSnippet, editSnippet } from "@/features/snippets/services";
-import { createAiAnalysis } from "@/features/snippets/services/ai-analysis";
 import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet";
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
-import { addNewSnippetToCollection } from "@/lib/qdrant";
 import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
 import { z } from "zod/mini";
 

@@ -4,6 +4,7 @@ import { getUser } from "@/features/auth/data";
 import { aesDecrypt, EncryptionPurpose } from "@/features/auth/utils/aes";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -16,7 +17,7 @@ export default async function ResetPassword({ searchParams }: PageProps) {
 
   if (isFirstLogin) {
     const firstLoginCookieData = cookieStore.get(
-      AUTH_CONSTANTS.PASSWORD_RESET_COOKIE
+      AUTH_CONSTANTS.PASSWORD_RESET_COOKIE,
     );
 
     if (!firstLoginCookieData) {
@@ -25,7 +26,7 @@ export default async function ResetPassword({ searchParams }: PageProps) {
 
     const decryptedData = aesDecrypt(
       firstLoginCookieData.value,
-      EncryptionPurpose.PASSWORD_RESET
+      EncryptionPurpose.PASSWORD_RESET,
     );
 
     const data = JSON.parse(decryptedData);
@@ -52,7 +53,11 @@ export default async function ResetPassword({ searchParams }: PageProps) {
     <>
       <h1 className="text-3xl font-bold text-center my-5">Reset Password</h1>
 
-      {isFirstLogin && <FirstTimeResetPassword />}
+      {isFirstLogin && (
+        <Suspense>
+          <FirstTimeResetPassword />
+        </Suspense>
+      )}
     </>
   );
 }

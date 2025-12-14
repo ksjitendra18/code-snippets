@@ -6,9 +6,8 @@ interface Filters {
 }
 
 export const GET = async (req: Request) => {
+  const url = new URL(req.url);
   try {
-    const url = new URL(req.url);
-
     // const { q: query = "", language = "", tags = "" } = url.searchParams;
 
     const q = url.searchParams.get("q");
