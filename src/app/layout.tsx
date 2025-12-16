@@ -21,23 +21,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const authenticationData = await checkAuthentication();
-
-  let authenticationData: Awaited<ReturnType<typeof checkAuthentication>>;
-
-  authenticationData = {
-    isAuthenticated: true,
-    user: {
-      id: 1,
-      role: "SUPER_ADMIN",
-      pfId: "123456789",
-    },
-  };
+  const authenticationData = await checkAuthentication();
 
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <ToasterTopLoader />
+
         <Navbar currentUser={authenticationData.user} />
         <main className="max-w-7xl mx-auto px-4">{children}</main>
       </body>

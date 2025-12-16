@@ -18,6 +18,7 @@ type CurrentUser = AuthenticationData["user"];
 
 export default function Navbar({ currentUser }: NavbarProps) {
   const pathName = usePathname();
+
   const [open, setOpen] = useState(false);
   const router = useRouter();
 

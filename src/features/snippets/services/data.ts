@@ -1,7 +1,7 @@
 import { db } from "@/db";
+import { cacheTag } from "next/cache";
 
 export const getAllSnippets = async ({ lang }: { lang: string }) => {
-  "use cache";
   return await db.query.snippets.findMany({
     where: {
       language: lang,

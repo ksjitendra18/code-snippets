@@ -10,7 +10,7 @@ export async function addSummaryJob(
     priority,
     delay: 0,
   });
-  console.log("Job added:", job);
+
   return job;
 }
 
@@ -35,6 +35,6 @@ export async function addSnippetToQdrantIndexJob({
       delay: 0,
     }
   );
-  console.log("Job added:", job);
+
   return job;
 }

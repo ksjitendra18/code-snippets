@@ -1,14 +1,18 @@
 import { EditSnippet } from "@/features/snippets/components/edit-snippet";
 import { getSnippetDataById } from "@/features/snippets/data";
+import { Suspense } from "react";
 
 type Params = Promise<{ snippetId: string }>;
 
 const NotFound = () => {
   return <div>Not Found</div>;
 };
+// export default async function NewVersionPage({ params }: { params: Params }) {
 
-export default async function NewVersionPage({ params }: { params: Params }) {
-  const { snippetId } = await params;
+export default async function NewVersionPage() {
+  // const { snippetId } = await params
+
+  const snippetId = "1";
 
   const snippetData = await getSnippetDataById(snippetId);
 
@@ -16,7 +20,7 @@ export default async function NewVersionPage({ params }: { params: Params }) {
     return <NotFound />;
   }
   return (
-    <>
+    <Suspense fallback={<div>Loading...</div>}>
       <EditSnippet
         snippetId={snippetId}
         code={snippetData.versions[0].code}
@@ -25,6 +29,6 @@ export default async function NewVersionPage({ params }: { params: Params }) {
         title={snippetData.versions[0].title}
         version={snippetData.versions[0].version}
       />
-    </>
+    </Suspense>
   );
 }

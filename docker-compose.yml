@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - 127.0.0.1:7432:5432
+      - 127.0.0.1:5434:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
   valkey:
@@ -20,7 +20,7 @@ services:
       - VALKEY_PASSWORD=${VALKEY_PASSWORD}
       - VALKEY_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     ports:
-      - 127.0.0.1:7379:7379
+      - 127.0.0.1:6380:6379
     volumes:
       - valkey-data:/bitnami/valkey/data
 
@@ -30,8 +30,8 @@ services:
       environment:
         - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}
       ports:
-        - 127.0.0.1:7333:6333
-        - 127.0.0.1:7334:6334
+        - 127.0.0.1:6335:6333
+        - 127.0.0.1:6336:6334
       volumes:
         - qdrant_storage:/qdrant/storage
       restart: unless-stopped

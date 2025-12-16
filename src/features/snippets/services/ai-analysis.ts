@@ -3,6 +3,7 @@ import { Snippet, snippetAIAnalysis, SnippetVersion } from "@/db/schema";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { eq } from "drizzle-orm";
+import { cacheTag } from "next/cache";
 import { z } from "zod/v4";
 
 export const getAIAnalysisBySnippetId = async (snippetId: number) => {
