@@ -1,6 +1,7 @@
 import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import {
   AIAnalysisData,
   AIAnalysisDisplay,
@@ -10,6 +11,7 @@ import { getSnippetDataById } from "@/features/snippets/data";
 import { getAIAnalysisBySnippetId } from "@/features/snippets/services/ai-analysis";
 import { ArrowLeft, Copy } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 type Params = Promise<{ snippetId: string }>;
 
@@ -65,6 +67,12 @@ function NotFound() {
 
 export default async function SnippetPage({ params }: { params: Params }) {
   const { snippetId } = await params;
+
+  const { isAuthenticated } = await checkAuthentication();
+
+  if (!isAuthenticated) {
+    redirect(`/login?redirect=${encodeURIComponent("/snippets/")}`);
+  }
 
   const snippetData = await getSnippetDataById(snippetId);
 

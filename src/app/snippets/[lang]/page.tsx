@@ -1,15 +1,22 @@
 import { BreadCrumbs } from "@/components/breadcrumps";
 import { Button } from "@/components/ui/button";
+import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { programmingLanguages } from "@/features/snippets/constant";
 import { getAllSnippets } from "@/features/snippets/services/data";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 type Params = Promise<{ lang: string }>;
 
 export default async function LanguagePage({ params }: { params: Params }) {
+  const { isAuthenticated } = await checkAuthentication();
   const { lang } = await params;
+
+  if (!isAuthenticated) {
+    redirect(`/login?redirect=${encodeURIComponent("/snippets/" + lang)}`);
+  }
 
   const langInfo = programmingLanguages.find((l) => l.slug === lang);
 
