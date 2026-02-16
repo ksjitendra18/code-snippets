@@ -113,6 +113,7 @@ export function AddNewSnippet() {
             <option value="css">CSS</option>
             <option value="typescript">TypeScript</option>
             <option value="html">HTML</option>
+            <option value="react">React</option>
           </select>
         </div>
 

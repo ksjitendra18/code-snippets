@@ -5,7 +5,7 @@ import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet"
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
 import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
-import { updateTag } from "next/cache";
+import { revalidateTag } from "next/cache";, "max"
 import { z } from "zod/mini";
 
 export const POST = async (req: Request) => {
@@ -110,7 +110,7 @@ export const POST = async (req: Request) => {
       snippet.id,
     );
 
-    updateTag(`snippets-${language}`);
+    revalidateTag(`snippets-${language}`, "max");
     return Response.json(
       {
         success: true,

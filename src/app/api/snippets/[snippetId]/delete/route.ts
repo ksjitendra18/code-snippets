@@ -3,7 +3,7 @@ import { snippets } from "@/db/schema";
 import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import { getSnippetDataById } from "@/features/snippets/data";
 import { eq } from "drizzle-orm";
-import { updateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export const GET = async (
   request: Request,
@@ -43,9 +43,9 @@ export const GET = async (
 
   await db.delete(snippets).where(eq(snippets.id, Number(snippetId)));
 
-  updateTag(`snippets-${snippetId}`);
+  revalidateTag(`snippets-${snippetId}`, "max");
 
-  updateTag(`snippets-${snippetData?.language}`);
+  revalidateTag(`snippets-${snippetData?.language}`, "max");
 
   return Response.json(
     {
