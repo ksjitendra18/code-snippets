@@ -93,7 +93,7 @@ export const createAiAnalysis = async ({
   // });
 
   const { output: analysis } = await generateText({
-    model: "anthropic/claude-sonnet-4.5",
+    model: openai("gpt-4o-mini"),
     output: Output.object({
       schema: AIAnalysisSchema,
     }),
