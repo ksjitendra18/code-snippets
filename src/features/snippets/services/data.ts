@@ -4,7 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 export const getAllSnippets = async ({ lang }: { lang: string }) => {
   "use cache";
   cacheLife("max");
-  cacheTag(`snippet-${lang}`);
+  cacheTag(`snippets-${lang}`);
   return await db.query.snippets.findMany({
     where: {
       language: lang,
