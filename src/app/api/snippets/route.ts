@@ -5,7 +5,7 @@ import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet"
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
 import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
-import { revalidateTag } from "next/cache";, "max"
+import { revalidateTag } from "next/cache";
 import { z } from "zod/mini";
 
 export const POST = async (req: Request) => {
