@@ -1,6 +1,10 @@
 import { db } from "@/db";
+import { cacheLife, cacheTag } from "next/cache";
 
 export const getSnippetDataById = async (id: string | number) => {
+  "use cache";
+  cacheLife("max");
+  cacheTag(`snippet-${id}`);
   return await db.query.snippets.findFirst({
     where: { id: Number(id) },
     columns: {

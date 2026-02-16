@@ -13,6 +13,7 @@ interface PageProps {
 export default async function ResetPassword({ searchParams }: PageProps) {
   const sp = await searchParams;
   const isFirstLogin = sp["first_login"] === "true";
+
   const cookieStore = await cookies();
 
   if (isFirstLogin) {

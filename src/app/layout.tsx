@@ -1,10 +1,9 @@
+import { ToasterTopLoader } from "@/components/toaster-toploader";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
-import { ToasterTopLoader } from "@/components/toaster-toploader";
 
-import { checkAuthentication } from "@/features/auth/utils/check-auth";
+import NavbarContainer from "@/components/navbar/container";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,14 +20,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const authenticationData = await checkAuthentication();
+  // const authenticationData = await checkAuthentication();
 
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <ToasterTopLoader />
 
-        <Navbar currentUser={authenticationData.user} />
+        {/* <Navbar currentUser={authenticationData.user} /> */}
+        {/* <Suspense fallback={<NavbarLoader />}>
+          <Navbar currentUser={authenticationData.user} />
+        </Suspense> */}
+
+        <NavbarContainer />
+
         <main className="max-w-7xl mx-auto px-4">{children}</main>
       </body>
     </html>

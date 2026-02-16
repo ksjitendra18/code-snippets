@@ -3,7 +3,10 @@ import { AUTH_CONSTANTS } from "@/features/auth/constant";
 import { aesDecrypt, EncryptionPurpose } from "@/features/auth/utils/aes";
 import { cookies } from "next/headers";
 
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function checkAuthentication() {
+  await delay(5000);
   const cookiesStore = await cookies();
   try {
     const sessionToken = cookiesStore.get(AUTH_CONSTANTS.SESSION_COOKIE)?.value;
@@ -14,7 +17,7 @@ export async function checkAuthentication() {
 
     const decryptedSessionToken = aesDecrypt(
       sessionToken,
-      EncryptionPurpose.SESSION_COOKIE_SECRET
+      EncryptionPurpose.SESSION_COOKIE_SECRET,
     );
 
     const sessionData = await db.query.sessions.findFirst({

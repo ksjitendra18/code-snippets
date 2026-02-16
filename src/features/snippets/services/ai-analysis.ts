@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { Snippet, snippetAIAnalysis, SnippetVersion } from "@/db/schema";
 import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+// import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { eq } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 import { z } from "zod/v4";
@@ -20,7 +21,7 @@ const AIAnalysisSchema = z.object({
   codeFunctionality: z
     .string()
     .describe(
-      "A clear, concise explanation of what this code does, its main purpose, and key features"
+      "A clear, concise explanation of what this code does, its main purpose, and key features",
     ),
   optimizations: z
     .array(
@@ -47,14 +48,14 @@ const AIAnalysisSchema = z.object({
           .string()
           .optional()
           .describe("Optional improved code example"),
-      })
+      }),
     )
     .describe("Array of optimization suggestions for the code"),
   additionalRecommendations: z
     .string()
     .optional()
     .describe(
-      "General recommendations, alternative approaches, or related concepts that might be helpful"
+      "General recommendations, alternative approaches, or related concepts that might be helpful",
     ),
 });
 
@@ -77,9 +78,25 @@ export const createAiAnalysis = async ({
     },
   });
 
-  const { object: analysis } = await generateObject({
-    model: openai("gpt-4o-mini"),
-    schema: AIAnalysisSchema,
+  // const { object: analysis } = await generateText({
+  //   model: openai("gpt-4o-mini"),
+  //   schema: AIAnalysisSchema,
+  //   prompt: createAnalysisPrompt({
+  //     code,
+  //     description,
+  //     language,
+  //     title,
+  //     tags: [],
+  //   }),
+
+  //   temperature: 0.3,
+  // });
+
+  const { output: analysis } = await generateText({
+    model: "anthropic/claude-sonnet-4.5",
+    output: Output.object({
+      schema: AIAnalysisSchema,
+    }),
     prompt: createAnalysisPrompt({
       code,
       description,
@@ -87,9 +104,9 @@ export const createAiAnalysis = async ({
       title,
       tags: [],
     }),
-
     temperature: 0.3,
   });
+
   // const { object: analysis } = await generateObject({
   //   model: openai("gpt-4o-mini"),
   //   schema: AIAnalysisSchema,
@@ -132,6 +149,7 @@ interface LocalSnippetData {
   language: string;
   tags?: string[];
 }
+
 function createAnalysisPrompt(snippet: LocalSnippetData): string {
   const tagsText =
     snippet.tags && snippet.tags.length > 0
