@@ -1,11 +1,13 @@
 import { db } from "@/db";
 import { snippets } from "@/db/schema";
 import { checkAuthentication } from "@/features/auth/utils/check-auth";
+import { getSnippetDataById } from "@/features/snippets/data";
 import { eq } from "drizzle-orm";
+import { updateTag } from "next/cache";
 
 export const GET = async (
   request: Request,
-  context: { params: Promise<{ snippetId: string }> }
+  context: { params: Promise<{ snippetId: string }> },
 ) => {
   const { snippetId } = await context.params;
 
@@ -20,7 +22,7 @@ export const GET = async (
       },
       {
         status: 401,
-      }
+      },
     );
   }
 
@@ -33,11 +35,17 @@ export const GET = async (
       },
       {
         status: 401,
-      }
+      },
     );
   }
 
+  const snippetData = await getSnippetDataById(snippetId);
+
   await db.delete(snippets).where(eq(snippets.id, Number(snippetId)));
+
+  updateTag(`snippets-${snippetId}`);
+
+  updateTag(`snippets-${snippetData?.language}`);
 
   return Response.json(
     {
@@ -45,6 +53,6 @@ export const GET = async (
     },
     {
       status: 200,
-    }
+    },
   );
 };

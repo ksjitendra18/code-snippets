@@ -5,6 +5,7 @@ import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet"
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
 import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
 import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
+import { updateTag } from "next/cache";
 import { z } from "zod/mini";
 
 export const POST = async (req: Request) => {
@@ -14,7 +15,7 @@ export const POST = async (req: Request) => {
     if (!user)
       return Response.json(
         { error: { message: "Unauthorized" } },
-        { status: 401 }
+        { status: 401 },
       );
 
     const requestBody = await req.json();
@@ -29,7 +30,7 @@ export const POST = async (req: Request) => {
             message: z.treeifyError(result.error),
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,7 +70,7 @@ export const POST = async (req: Request) => {
       aiAnalysisJob.id,
       aiAnalysisJob,
       "for snippet",
-      snippet.id
+      snippet.id,
     );
     await initializeIndex();
 
@@ -106,8 +107,10 @@ export const POST = async (req: Request) => {
       newSnippetIndexJob.id,
       newSnippetIndexJob,
       "for snippet",
-      snippet.id
+      snippet.id,
     );
+
+    updateTag(`snippets-${language}`);
     return Response.json(
       {
         success: true,
@@ -117,7 +120,7 @@ export const POST = async (req: Request) => {
           },
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.log("Error while creating snippet", error);
@@ -128,7 +131,7 @@ export const POST = async (req: Request) => {
           message: "Something went wrong",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -140,7 +143,7 @@ export const PATCH = async (req: Request) => {
     if (!user)
       return Response.json(
         { error: { message: "Unauthorized" } },
-        { status: 401 }
+        { status: 401 },
       );
 
     const requestBody = await req.json();
@@ -155,7 +158,7 @@ export const PATCH = async (req: Request) => {
             message: z.treeifyError(result.error),
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -178,7 +181,7 @@ export const PATCH = async (req: Request) => {
             message: "Invalid snippet ID",
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -209,7 +212,7 @@ export const PATCH = async (req: Request) => {
         success: true,
         data: {},
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.log("Error while editing snippet", error);
@@ -220,7 +223,7 @@ export const PATCH = async (req: Request) => {
           message: "Something went wrong",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

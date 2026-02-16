@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function checkAuthentication() {
-  await delay(5000);
   const cookiesStore = await cookies();
   try {
     const sessionToken = cookiesStore.get(AUTH_CONSTANTS.SESSION_COOKIE)?.value;
