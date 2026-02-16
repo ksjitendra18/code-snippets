@@ -32,6 +32,17 @@ export const summaryWorker = new Worker(
       const processingTime = Date.now() - startTime;
 
       await job.updateProgress(100);
+
+      await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/api/snippets/${snippetId}/refresh`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.INTERNAL_API_KEY}`,
+          },
+        },
+      );
       console.log(`Completed summary job ${job.id} in ${processingTime}ms`);
     } catch (error) {
       console.error(`Failed to process summary job ${job.id}:`, error);
@@ -41,7 +52,7 @@ export const summaryWorker = new Worker(
   {
     connection: redis,
     concurrency: 5,
-  }
+  },
 );
 
 summaryWorker.on("completed", (job) => {
@@ -81,7 +92,7 @@ export const qdrantIndexWorker = new Worker(
 
       await job.updateProgress(100);
       console.log(
-        `Completed Qdrant index job ${job.id} in ${processingTime}ms`
+        `Completed Qdrant index job ${job.id} in ${processingTime}ms`,
       );
     } catch (error) {
       console.error(`Failed to process Qdrant index job ${job.id}:`, error);
@@ -91,7 +102,7 @@ export const qdrantIndexWorker = new Worker(
   {
     connection: redis,
     concurrency: 5,
-  }
+  },
 );
 
 qdrantIndexWorker.on("completed", (job) => {
