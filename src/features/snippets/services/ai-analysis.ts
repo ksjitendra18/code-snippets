@@ -44,10 +44,10 @@ const AIAnalysisSchema = z.object({
         priority: z
           .enum(["low", "medium", "high"])
           .describe("Priority level of this optimization"),
-        codeExample: z
-          .string()
-          .optional()
-          .describe("Optional improved code example"),
+        // codeExample: z
+        //   .string()
+        //   .optional()
+        //   .describe("Optional improved code example"),
       }),
     )
     .describe("Array of optimization suggestions for the code"),
