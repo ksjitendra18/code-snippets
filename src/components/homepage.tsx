@@ -2,15 +2,9 @@
 
 import {
   Bot,
-  CheckCircle,
   Database,
-  FileText,
   GitBranch,
-  Lock,
-  Search,
-  TrendingUp,
-  Users,
-  Zap,
+  Lock
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
