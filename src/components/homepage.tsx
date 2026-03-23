@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Bot,
-  Database,
-  GitBranch,
-  Lock
-} from "lucide-react";
+import { Bot, Database, GitBranch, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Home = () => {

@@ -53,7 +53,6 @@ const AIAnalysisSchema = z.object({
     .describe("Array of optimization suggestions for the code"),
   additionalRecommendations: z
     .string()
-    .optional()
     .describe(
       "General recommendations, alternative approaches, or related concepts that might be helpful",
     ),
