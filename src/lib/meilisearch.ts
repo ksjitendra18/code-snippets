@@ -1,7 +1,7 @@
 import { Snippet, SnippetVersion } from "@/db/schema";
-import { MeiliSearch, SearchParams } from "meilisearch";
+import { Meilisearch, SearchParams } from "meilisearch";
 
-const client = new MeiliSearch({
+const client = new Meilisearch({
   host: process.env.MEILISEARCH_HOST || "http://localhost:7701",
   apiKey: process.env.MEILISEARCH_API_KEY,
 });
@@ -67,7 +67,7 @@ export const searchCodeSnippets = async (query: string, filters: Filters) => {
   }
   if (filters.tags && filters.tags.length > 0) {
     filterArray.push(
-      `tags IN [${filters.tags.map((tag) => `"${tag}"`).join(", ")}]`
+      `tags IN [${filters.tags.map((tag) => `"${tag}"`).join(", ")}]`,
     );
   }
 
