@@ -43,6 +43,7 @@ export function AddNewSnippet() {
 
       if (resp.status === 201) {
         router.push("/snippets");
+        router.refresh();
       }
     } catch (error) {
       console.log(error);
