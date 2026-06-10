@@ -1,8 +1,8 @@
-import { redis } from "@/lib/redis";
+import { redisConnectionOptions } from "@/lib/redis";
 import { Queue } from "bullmq";
 
 export const aiCodeAnalysisQueue = new Queue("ai-code-analysis", {
-  connection: redis,
+  connection: redisConnectionOptions,
   defaultJobOptions: {
     attempts: 3,
     backoff: {
@@ -15,7 +15,7 @@ export const aiCodeAnalysisQueue = new Queue("ai-code-analysis", {
 });
 
 export const qdrantSnippetIndexQueue = new Queue("qdrant-snippet-index", {
-  connection: redis,
+  connection: redisConnectionOptions,
   defaultJobOptions: {
     attempts: 3,
     backoff: {

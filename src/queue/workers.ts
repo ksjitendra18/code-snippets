@@ -4,7 +4,7 @@ import { NewSnippetIndex, SummaryTaskData } from "./types";
 // import { redis } from "@/lib/redis";
 // import { addNewSnippetToCollection } from "@/lib/qdrant";
 
-import { redis } from "../lib/redis";
+import { redisConnectionOptions } from "../lib/redis";
 import { createAiAnalysis } from "../features/snippets/services/ai-analysis";
 import { addNewSnippetToCollection } from "../lib/qdrant";
 
@@ -50,7 +50,7 @@ export const summaryWorker = new Worker(
     }
   },
   {
-    connection: redis,
+    connection: redisConnectionOptions,
     concurrency: 5,
   },
 );
@@ -100,7 +100,7 @@ export const qdrantIndexWorker = new Worker(
     }
   },
   {
-    connection: redis,
+    connection: redisConnectionOptions,
     concurrency: 5,
   },
 );
