@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
   },
   cacheComponents: true,
+  partialPrefetching: true,
 };
 
 export default nextConfig;
