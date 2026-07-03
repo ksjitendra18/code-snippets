@@ -42,7 +42,7 @@ export function AddNewSnippet() {
       });
 
       if (resp.status === 201) {
-        router.push("/snippets");
+        router.push(`/snippets/${language}`);
         router.refresh();
       }
     } catch (error) {
