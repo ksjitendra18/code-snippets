@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Code2, Home, LogIn, Menu, Search, Users2 } from "lucide-react";
 
@@ -26,32 +26,25 @@ export default function Navbar({ currentUser }: NavbarProps) {
     setOpen(false);
   }, [pathName]);
 
-  const navItems = [
-    { label: "Home", href: "/", icon: Home },
-    ...(currentUser
-      ? [
-          { label: "Snippets", href: "/snippets", icon: Code2 },
-          { label: "Search", href: "/snippets/search", icon: Search },
-          ...(currentUser?.role === "SUPER_ADMIN"
-            ? [
-                {
-                  label: "User Management",
-                  href: "/user-management",
-                  icon: Users2,
-                },
-              ]
-            : []),
-        ]
-      : []),
-    // { label: "Snippets", href: "/snippets", icon: Code2 },
-
-    // ...(currentUser?.staff
-    //   ? [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }]
-    //   : []),
-    // ...(currentUser && !currentUser.staff
-    //   ? [{ label: "My Courses", href: "/my-courses", icon: GraduationCap }]
-    //   : []),
-  ];
+  const navItems = useMemo(() => {
+    const items: { label: string; href: string; icon: typeof Home }[] = [
+      { label: "Home", href: "/", icon: Home },
+    ];
+    if (currentUser) {
+      items.push(
+        { label: "Snippets", href: "/snippets", icon: Code2 },
+        { label: "Search", href: "/snippets/search", icon: Search },
+      );
+      if (currentUser.role === "SUPER_ADMIN") {
+        items.push({
+          label: "User Management",
+          href: "/user-management",
+          icon: Users2,
+        });
+      }
+    }
+    return items;
+  }, [currentUser]);
 
   const renderNavItems = (isMobile: boolean = false) => (
     <>

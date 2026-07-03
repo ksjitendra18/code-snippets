@@ -1,19 +1,21 @@
 import { db } from "@/db";
 import { snippetAIAnalysis } from "@/db/schema";
 import { openai } from "@ai-sdk/openai";
-// import { generateObject } from "ai";
 import { generateText, Output } from "ai";
-import { eq } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
 import { z } from "zod/v4";
 
 export const getAIAnalysisBySnippetId = async (snippetId: number) => {
-  const snippetAIAnalysis = await db.query.snippetAIAnalysis.findFirst({
+  "use cache";
+  cacheLife("max");
+  cacheTag(`snippet-ai-analysis-${snippetId}`);
+  const result = await db.query.snippetAIAnalysis.findFirst({
     where: {
       snippetId,
     },
   });
 
-  return snippetAIAnalysis;
+  return result;
 };
 
 const AIAnalysisSchema = z.object({
@@ -43,10 +45,6 @@ const AIAnalysisSchema = z.object({
         priority: z
           .enum(["low", "medium", "high"])
           .describe("Priority level of this optimization"),
-        // codeExample: z
-        //   .string()
-        //   .optional()
-        //   .describe("Optional improved code example"),
       }),
     )
     .describe("Array of optimization suggestions for the code"),
@@ -70,26 +68,6 @@ export const createAiAnalysis = async ({
   language: string;
   snippetId: number;
 }) => {
-  const existingAnalysis = await db.query.snippetAIAnalysis.findFirst({
-    where: {
-      snippetId,
-    },
-  });
-
-  // const { object: analysis } = await generateText({
-  //   model: openai("gpt-4o-mini"),
-  //   schema: AIAnalysisSchema,
-  //   prompt: createAnalysisPrompt({
-  //     code,
-  //     description,
-  //     language,
-  //     title,
-  //     tags: [],
-  //   }),
-
-  //   temperature: 0.3,
-  // });
-
   const { output: analysis } = await generateText({
     model: openai("gpt-4o-mini"),
     output: Output.object({
@@ -105,39 +83,12 @@ export const createAiAnalysis = async ({
     temperature: 0.3,
   });
 
-  // const { object: analysis } = await generateObject({
-  //   model: openai("gpt-4o-mini"),
-  //   schema: AIAnalysisSchema,
-  //   prompt: createAnalysisPrompt({
-  //     code,
-  //     description,
-  //     language,
-  //     title,
-  //     tags: [],
-  //   }),
-
-  //   temperature: 0.3,
-  // });
-
-  if (existingAnalysis) {
-    await db
-      .update(snippetAIAnalysis)
-      .set({
-        codeFunctionality: analysis.codeFunctionality,
-        optimizations: analysis.optimizations,
-        additionalRecommendations: analysis.additionalRecommendations,
-      })
-      .where(eq(snippetAIAnalysis.snippetId, snippetId));
-  } else {
-    await db.insert(snippetAIAnalysis).values({
-      snippetId,
-      codeFunctionality: analysis.codeFunctionality,
-      optimizations: analysis.optimizations,
-      additionalRecommendations: analysis.additionalRecommendations,
-    });
-  }
-
-  console.log("Analysis:", analysis);
+  await db.insert(snippetAIAnalysis).values({
+    snippetId,
+    codeFunctionality: analysis.codeFunctionality,
+    optimizations: analysis.optimizations,
+    additionalRecommendations: analysis.additionalRecommendations,
+  });
 };
 
 interface LocalSnippetData {

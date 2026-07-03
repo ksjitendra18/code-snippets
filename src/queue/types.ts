@@ -10,3 +10,12 @@ export type SummaryTaskData = {
 
 export type NewSnippetIndex = Pick<Snippet, "id" | "language"> &
   Pick<SnippetVersion, "title" | "description" | "code">;
+
+export type MeiliIndexTaskData = {
+  id: number;
+  title: string;
+  description: string;
+  language: string;
+  code: string;
+  createdAt?: string | Date | null;
+};

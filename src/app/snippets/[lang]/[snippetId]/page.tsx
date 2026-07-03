@@ -5,28 +5,17 @@ import { checkAuthentication } from "@/features/auth/utils/check-auth";
 import {
   AIAnalysisData,
   AIAnalysisDisplay,
+  AIAnalysisLoading,
 } from "@/features/snippets/components/ai-analysis";
 import { DisplaySnippet } from "@/features/snippets/components/display-snippet";
 import { getSnippetDataById } from "@/features/snippets/data";
 import { getAIAnalysisBySnippetId } from "@/features/snippets/services/ai-analysis";
-import { ArrowLeft, Copy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 type Params = Promise<{ snippetId: string }>;
-
-function CopyButton({ code }: { code: string }) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-    >
-      <Copy className="h-4 w-4 mr-1" />
-      Copy
-    </Button>
-  );
-}
 
 function NotFound() {
   return (
@@ -65,29 +54,44 @@ function NotFound() {
   );
 }
 
+async function AIAnalysisSection({ snippetId }: { snippetId: number }) {
+  const aiAnalysis = await getAIAnalysisBySnippetId(snippetId);
+
+  if (!aiAnalysis) return null;
+
+  const parsedAnalysis: AIAnalysisData = {
+    ...aiAnalysis,
+    optimizations:
+      aiAnalysis.optimizations as unknown as AIAnalysisData["optimizations"],
+    createdAt:
+      aiAnalysis.createdAt?.toISOString() ?? new Date().toISOString(),
+  };
+
+  return (
+    <>
+      <Separator className="my-12" />
+      <div className="bg-white rounded-lg p-8">
+        <AIAnalysisDisplay analysis={parsedAnalysis} />
+      </div>
+    </>
+  );
+}
+
 export default async function SnippetPage({ params }: { params: Params }) {
   const { snippetId } = await params;
 
   const { isAuthenticated } = await checkAuthentication();
 
   if (!isAuthenticated) {
-    redirect(`/login?redirect=${encodeURIComponent("/snippets/")}`);
+    redirect(`/login?redirect=${encodeURIComponent(`/snippets/${snippetId}`)}`);
   }
 
   const snippetData = await getSnippetDataById(snippetId);
 
   if (!snippetData) return <NotFound />;
-  const currentSnippet = snippetData?.versions.find((v) => v.isCurrent);
 
+  const currentSnippet = snippetData.versions.find((v) => v.isCurrent);
   if (!currentSnippet) return <NotFound />;
-
-  const aiAnalysis = await getAIAnalysisBySnippetId(parseInt(snippetId));
-
-  const parsedAnalysis: AIAnalysisData | undefined = aiAnalysis && {
-    ...aiAnalysis,
-    optimizations: aiAnalysis.optimizations as AIAnalysisData["optimizations"],
-    createdAt: aiAnalysis.createdAt?.toISOString() ?? new Date().toISOString(),
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -102,16 +106,21 @@ export default async function SnippetPage({ params }: { params: Params }) {
           />
         </div>
 
-        {!snippetData ? <NotFound /> : <DisplaySnippet snippet={snippetData} />}
+        <DisplaySnippet snippet={snippetData} />
 
-        {parsedAnalysis && (
-          <>
-            <Separator className="my-12" />
-            <div className="bg-white rounded-lg p-8">
-              <AIAnalysisDisplay analysis={parsedAnalysis} />
-            </div>
-          </>
-        )}
+        <Suspense
+          key={snippetId}
+          fallback={
+            <>
+              <Separator className="my-12" />
+              <div className="bg-white rounded-lg p-8">
+                <AIAnalysisLoading />
+              </div>
+            </>
+          }
+        >
+          <AIAnalysisSection snippetId={parseInt(snippetId)} />
+        </Suspense>
       </div>
     </div>
   );

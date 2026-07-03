@@ -61,7 +61,11 @@ export const snippetVersions = pgTable(
       () => new Date().toISOString()
     ),
   },
-  (t) => [index("snippets_version_createdby").on(t.createdBy)]
+  (t) => [
+    index("snippets_version_createdby").on(t.createdBy),
+    index("snippets_version_snippetid_iscurrent").on(t.snippetId, t.isCurrent),
+    index("snippets_version_snippetid").on(t.snippetId),
+  ]
 );
 
 export type Snippet = typeof snippets.$inferSelect;
@@ -103,5 +107,8 @@ export const snippetAIAnalysis = pgTable(
 
     createdAt: timestamp({ withTimezone: true }).defaultNow(),
   },
-  (t) => [index("snippet_analysis_snippet").on(t.snippetId)]
+  (t) => [
+    index("snippet_analysis_snippet").on(t.snippetId),
+    unique("snippet_analysis_snippetid_unique").on(t.snippetId),
+  ]
 );

@@ -1,9 +1,8 @@
-// components/CodeHighlighter.tsx
 "use client";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 interface CodeHighlighterProps {
   code: string;
@@ -13,7 +12,7 @@ interface CodeHighlighterProps {
   copyable?: boolean;
 }
 
-export function CodeHighlighter({
+function CodeHighlighterInner({
   code,
   language,
   title,
@@ -22,11 +21,11 @@ export function CodeHighlighter({
 }: CodeHighlighterProps) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [code]);
 
   return (
     <div className="rounded-lg border bg-gray-950 overflow-hidden">
@@ -62,3 +61,5 @@ export function CodeHighlighter({
     </div>
   );
 }
+
+export const CodeHighlighter = memo(CodeHighlighterInner);

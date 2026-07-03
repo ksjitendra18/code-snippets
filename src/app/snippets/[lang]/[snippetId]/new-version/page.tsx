@@ -27,11 +27,11 @@ export default async function NewVersionPage({ params }: { params: Params }) {
     <Suspense fallback={<div>Loading...</div>}>
       <EditSnippet
         snippetId={snippetId}
-        code={snippetData.versions[0].code}
-        description={snippetData.versions[0].description}
+        code={snippetData.currentVersion.code}
+        description={snippetData.currentVersion.description}
         lang={snippetData.language}
-        title={snippetData.versions[0].title}
-        version={snippetData.versions[0].version}
+        title={snippetData.currentVersion.title}
+        version={snippetData.currentVersion.version}
       />
     </Suspense>
   );

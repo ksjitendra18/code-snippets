@@ -26,7 +26,7 @@ export const GET = async (req: Request) => {
       query: results.query,
     });
   } catch (error) {
-    console.log("Error while searching snippet", error);
+    console.error("Error while searching snippet", error);
     return Response.json(
       {
         error: {

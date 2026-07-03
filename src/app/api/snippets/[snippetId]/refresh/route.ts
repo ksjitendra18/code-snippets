@@ -14,7 +14,7 @@ export const POST = async (
   const authHeader = reqHeaders.get("authorization");
 
   const isAuthenticated =
-    authHeader !== `Bearer ${process.env.INTERNAL_API_KEY}`;
+    authHeader === `Bearer ${process.env.INTERNAL_API_KEY}`;
 
   if (!isAuthenticated) {
     return Response.json(

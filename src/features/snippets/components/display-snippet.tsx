@@ -14,16 +14,92 @@ import {
   Pencil,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { GetSnippetDataById } from "../data";
 
 import { toast } from "sonner";
 import Link from "next/link";
 
-export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
+type DisplaySnippetProps = {
+  snippet: GetSnippetDataById;
+};
+
+type VersionMeta = GetSnippetDataById["versions"][number];
+
+function CopyButton({ code }: { code: string }) {
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={async () => {
+        await navigator.clipboard.writeText(code);
+        toast.success("Copied to clipboard", {
+          position: "top-center",
+        });
+      }}
+      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+    >
+      <Copy className="h-4 w-4 mr-1" />
+      Copy
+    </Button>
+  );
+}
+
+const MemoizedCodeHighlighter = memo(CodeHighlighter);
+
+export function DisplaySnippet({ snippet }: DisplaySnippetProps) {
   const versions = snippet.versions;
-  const [selectedVersion, setSelectedVersion] = useState(
-    versions.find((v) => v.isCurrent) || versions[0]
+  const currentVersion = snippet.currentVersion;
+
+  const [selectedVersion, setSelectedVersion] = useState<VersionMeta>(
+    currentVersion as VersionMeta,
+  );
+  const [lazyCode, setLazyCode] = useState<string | null>(null);
+  const [loadingCode, setLoadingCode] = useState(false);
+
+  useEffect(() => {
+    if (selectedVersion.id === currentVersion.id) {
+      setLazyCode(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    setLoadingCode(true);
+
+    fetch(
+      `/api/snippets/${snippet.id}/versions/${selectedVersion.id}/code`,
+      { signal: controller.signal },
+    )
+      .then((r) => (r.ok ? r.json() : Promise.reject(r)))
+      .then((d: { code: string }) => setLazyCode(d.code))
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          toast.error("Failed to load version");
+        }
+      })
+      .finally(() => setLoadingCode(false));
+
+    return () => controller.abort();
+  }, [selectedVersion.id, currentVersion.id, snippet.id]);
+
+  const displayCode = useMemo(
+    () =>
+      selectedVersion.id === currentVersion.id
+        ? currentVersion.code
+        : (lazyCode ?? ""),
+    [selectedVersion.id, currentVersion.id, currentVersion.code, lazyCode],
+  );
+
+  const versionHeader = useMemo(
+    () => ({
+      title: selectedVersion.title,
+      version: selectedVersion.version,
+      description: selectedVersion.description,
+      changeDescription: selectedVersion.changeDescription,
+      createdAt: selectedVersion.createdAt,
+      authorPfId: selectedVersion.author?.pfId,
+    }),
+    [selectedVersion],
   );
 
   return (
@@ -33,7 +109,7 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
           <div>
             <div className="flex items-center gap-4 mb-4">
               <h1 className="text-3xl font-bold text-gray-900 ">
-                {selectedVersion.title}
+                {versionHeader.title}
               </h1>
 
               <Button variant={"outline"} asChild>
@@ -47,24 +123,24 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-sm">
-                <GitBranch className="h-3 w-3 mr-1" />v{selectedVersion.version}
+                <GitBranch className="h-3 w-3 mr-1" />v{versionHeader.version}
               </Badge>
               <Badge variant="secondary">{snippet.language}</Badge>
             </div>
           </div>
         </div>
 
-        {selectedVersion.description && (
+        {versionHeader.description && (
           <div className="   mb-4">
             <h3 className="font-medium text-black mb-1">Description:</h3>
-            <p className=" text-sm">{selectedVersion.description}</p>
+            <p className=" text-sm">{versionHeader.description}</p>
           </div>
         )}
-        {selectedVersion.changeDescription && (
+        {versionHeader.changeDescription && (
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
             <h3 className="font-medium text-blue-900 mb-1">What's New:</h3>
             <p className="text-blue-800 text-sm">
-              {selectedVersion.changeDescription}
+              {versionHeader.changeDescription}
             </p>
           </div>
         )}
@@ -72,11 +148,13 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <User className="h-4 w-4" />
-            <span>Created by {snippet.author?.pfId}</span>
+            <span>Created by {versionHeader.authorPfId}</span>
           </div>
           <div className="flex items-center gap-1">
             <Calendar className="h-4 w-4" />
-            <span>{selectedVersion.createdAt.toLocaleDateString()}</span>
+            <span>
+              {new Date(versionHeader.createdAt).toLocaleDateString()}
+            </span>
           </div>
         </div>
       </div>
@@ -86,17 +164,23 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
           <Card className="relative group">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-medium flex items-center justify-between">
-                <span>Code - Version {selectedVersion.version}</span>
-                <CopyButton code={selectedVersion.code} />
+                <span>Code - Version {versionHeader.version}</span>
+                <CopyButton code={displayCode} />
               </CardTitle>
             </CardHeader>
             <Separator />
             <CardContent className="p-0">
               <div className="relative">
-                <CodeHighlighter
-                  code={selectedVersion.code}
-                  language={snippet.language}
-                />
+                {loadingCode ? (
+                  <div className="p-6 text-sm text-gray-500 animate-pulse">
+                    Loading version...
+                  </div>
+                ) : (
+                  <MemoizedCodeHighlighter
+                    code={displayCode}
+                    language={snippet.language}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -136,7 +220,7 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
                       )}
                     </div>
                     <span className="text-xs text-gray-500">
-                      {version?.createdAt?.toLocaleDateString()}
+                      {new Date(version.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <h4 className="font-medium text-sm mb-1">{version.title}</h4>
@@ -149,7 +233,7 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
                     <span>•</span>
                     <Clock className="h-3 w-3" />
                     <span>
-                      {version.createdAt.toLocaleTimeString([], {
+                      {new Date(version.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -161,31 +245,6 @@ export function DisplaySnippet({ snippet }: { snippet: GetSnippetDataById }) {
           </Card>
         </div>
       </div>
-
-      {/* <div className="bg-white rounded-lg shadow-sm border p-6">
-        <Suspense fallback={<div>Loading comments...</div>}>
-          <CommentsSection />
-        </Suspense>
-      </div> */}
     </div>
-  );
-}
-
-function CopyButton({ code }: { code: string }) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={async () => {
-        await navigator.clipboard.writeText(code);
-        toast.success("Copied to clipboard", {
-          position: "top-center",
-        });
-      }}
-      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-    >
-      <Copy className="h-4 w-4 mr-1" />
-      Copy
-    </Button>
   );
 }

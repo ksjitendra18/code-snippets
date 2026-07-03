@@ -4,36 +4,43 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q");
+
+  if (!q || !q.trim()) {
+    return Response.json(
+      { error: { code: "MISSING_QUERY", message: "Query is required" } },
+      { status: 400 },
+    );
+  }
+
+  const collection = process.env.QDRANT_COLLECTION;
+  if (!collection) {
+    return Response.json(
+      { error: { code: "SERVER_ERROR", message: "Collection not configured" } },
+      { status: 500 },
+    );
+  }
+
+  const now = performance.now();
+
   try {
-    const now = performance.now();
-    const vector = await generateEmbedding(q!);
+    const vector = await generateEmbedding(q);
 
-    const collections = await qdrantClient.getCollections();
-    console.log(
-      "Available collections:",
-      collections,
-      collections.collections.map((c) => c.name)
-    );
-
-    const collectionInfo = await qdrantClient.getCollection(
-      process.env.QDRANT_COLLECTION!
-    );
-    console.log("Collection info:", collectionInfo);
-
-    const results = await qdrantClient.search(process.env.QDRANT_COLLECTION!, {
+    const results = await qdrantClient.search(collection, {
       vector,
       limit: 5,
       with_payload: true,
     });
 
     const processingTime = performance.now() - now;
-    if (results.length === 0)
+
+    if (results.length === 0) {
       return Response.json({
         hits: [],
-        totalHits: results.length,
+        totalHits: 0,
         processingTime,
-        query: q!,
+        query: q,
       });
+    }
 
     const modifiedResults = results
       .filter((r) => r.score > 0.3)
@@ -48,22 +55,10 @@ export async function GET(request: NextRequest) {
       hits: modifiedResults,
       totalHits: modifiedResults.length,
       processingTime,
-      query: q!,
-      rawResults: results,
+      query: q,
     });
-    // return Response.json({
-    //   hits: results.map((r) => ({
-    //     id: r.payload?.id ?? "",
-    //     title: r.payload?.title ?? "",
-    //     language: r.payload?.language ?? "",
-    //   })),
-    //   totalHits: results.length,
-    //   processingTime,
-    //   query: q!,
-    //   rawResults: results,
-    // });
   } catch (error) {
-    console.log("Error while semantic searching snippet", error);
+    console.error("Error while semantic searching snippet", error);
     return Response.json(
       {
         error: {
@@ -71,7 +66,7 @@ export async function GET(request: NextRequest) {
           message: "Something went wrong",
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

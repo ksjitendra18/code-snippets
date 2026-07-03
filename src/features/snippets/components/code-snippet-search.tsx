@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search,
   Filter,
@@ -8,13 +8,13 @@ import {
   Calendar,
   Tag,
   Copy,
-  ExternalLink,
   Sparkles,
   MessageSquare,
 } from "lucide-react";
 import { languages } from "../constant";
 import { toast } from "sonner";
 import Link from "next/link";
+import DOMPurify from "isomorphic-dompurify";
 
 interface CodeSnippet {
   id: string;
@@ -28,7 +28,7 @@ interface CodeSnippet {
     title?: string;
     description?: string;
   };
-  score?: number; // For semantic search results
+  score?: number;
 }
 
 interface SearchFilters {
@@ -45,6 +45,13 @@ interface SearchResponse {
 
 type SearchMode = "keyword" | "ai";
 
+const PREVIEW_MAX_CHARS = 300;
+
+const truncatePreview = (s: string | undefined, max: number) => {
+  if (!s) return "";
+  return s.length <= max ? s : `${s.slice(0, max).trimEnd()}…`;
+};
+
 export const CodeSnippetSearch: React.FC = () => {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<CodeSnippet[]>([]);
@@ -58,26 +65,15 @@ export const CodeSnippetSearch: React.FC = () => {
   const [searchTime, setSearchTime] = useState<number>(0);
   const [searchMode, setSearchMode] = useState<SearchMode>("keyword");
 
-  const debounce = <T extends (...args: any[]) => any>(
-    func: T,
-    wait: number
-  ) => {
-    let timeout: NodeJS.Timeout;
-    return function executedFunction(...args: Parameters<T>) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  };
+  const abortRef = useRef<AbortController | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestSeqRef = useRef(0);
 
   const searchSnippets = useCallback(
     async (
       searchQuery: string,
       currentFilters: SearchFilters,
-      mode: SearchMode
+      mode: SearchMode,
     ) => {
       if (
         !searchQuery.trim() &&
@@ -89,80 +85,69 @@ export const CodeSnippetSearch: React.FC = () => {
         return;
       }
 
-      setResults([]);
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      const seq = ++requestSeqRef.current;
 
       setLoading(true);
       try {
-        let endpoint = "";
-        let params = new URLSearchParams();
-
-        if (mode === "ai") {
-          // Use semantic search endpoint
-          endpoint = "/api/snippets/semantic";
-          params.set("q", searchQuery);
-          // For semantic search, we might want to include filters differently
-          if (currentFilters.language) {
-            params.set("language", currentFilters.language);
-          }
-          if (currentFilters.tags.length > 0) {
-            params.set("tags", currentFilters.tags.join(","));
-          }
-        } else {
-          // Use traditional search endpoint
-          endpoint = "/api/snippets/search";
-          params.set("q", searchQuery);
-          if (currentFilters.language) {
-            params.set("language", currentFilters.language);
-          }
-          if (currentFilters.tags.length > 0) {
-            params.set("tags", currentFilters.tags.join(","));
-          }
+        const endpoint =
+          mode === "ai"
+            ? "/api/snippets/semantic"
+            : "/api/snippets/search";
+        const params = new URLSearchParams();
+        params.set("q", searchQuery);
+        if (currentFilters.language) {
+          params.set("language", currentFilters.language);
+        }
+        if (currentFilters.tags.length > 0) {
+          params.set("tags", currentFilters.tags.join(","));
         }
 
-        const response = await fetch(`${endpoint}?${params}`);
+        const response = await fetch(`${endpoint}?${params}`, {
+          signal: controller.signal,
+        });
         const data: SearchResponse = await response.json();
+
+        if (seq !== requestSeqRef.current) return;
 
         if (response.ok) {
           setResults(data.hits || []);
           setTotalHits(data.totalHits || 0);
           setSearchTime(data.processingTimeMs || 0);
         } else {
-          console.error("Search error:", (data as any).error);
           setResults([]);
           toast.error(
             mode === "ai"
               ? "AI search failed. Please try again."
-              : "Search failed. Please try again."
+              : "Search failed. Please try again.",
           );
         }
       } catch (error) {
-        console.error("Search request failed:", error);
+        if ((error as Error)?.name === "AbortError") return;
+        if (seq !== requestSeqRef.current) return;
         setResults([]);
         toast.error("Search request failed. Please check your connection.");
       } finally {
-        setLoading(false);
+        if (seq === requestSeqRef.current) {
+          setLoading(false);
+        }
       }
     },
-    []
-  );
-
-  const debouncedSearch = useCallback(
-    debounce(
-      (
-        searchQuery: string,
-        currentFilters: SearchFilters,
-        mode: SearchMode
-      ) => {
-        searchSnippets(searchQuery, currentFilters, mode);
-      },
-      300
-    ),
-    [searchSnippets]
+    [],
   );
 
   useEffect(() => {
-    debouncedSearch(query, filters, searchMode);
-  }, [query, filters, searchMode, debouncedSearch]);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      searchSnippets(query, filters, searchMode);
+    }, 300);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [query, filters, searchMode, searchSnippets]);
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -202,7 +187,7 @@ export const CodeSnippetSearch: React.FC = () => {
         </mark>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -415,7 +400,9 @@ export const CodeSnippetSearch: React.FC = () => {
                         {snippet._formatted?.title ? (
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: snippet._formatted.title,
+                              __html: DOMPurify.sanitize(
+                                snippet._formatted.title,
+                              ),
                             }}
                           />
                         ) : (
@@ -432,7 +419,9 @@ export const CodeSnippetSearch: React.FC = () => {
                       {snippet._formatted?.description ? (
                         <span
                           dangerouslySetInnerHTML={{
-                            __html: snippet._formatted.description,
+                            __html: DOMPurify.sanitize(
+                              snippet._formatted.description,
+                            ),
                           }}
                         />
                       ) : (
@@ -458,9 +447,7 @@ export const CodeSnippetSearch: React.FC = () => {
                 <div className="bg-gray-50 rounded-md p-3 mb-3 overflow-x-auto">
                   <pre className="text-sm text-gray-800 whitespace-pre-wrap">
                     <code className={`language-${snippet.language}`}>
-                      {snippet.code?.length > 300
-                        ? `${snippet.code.substring(0, 300)}...`
-                        : snippet.code}
+                      {truncatePreview(snippet.code, PREVIEW_MAX_CHARS)}
                     </code>
                   </pre>
                 </div>

@@ -3,8 +3,11 @@ import { getSnippetDataById } from "@/features/snippets/data";
 import { createSnippet, editSnippet } from "@/features/snippets/services";
 import { EditSnippetSchema } from "@/features/snippets/validations/edit-snippet";
 import { NewSnippetSchema } from "@/features/snippets/validations/new-snippet";
-import { addCodeSnippet, initializeIndex } from "@/lib/meilisearch";
-import { addSnippetToQdrantIndexJob, addSummaryJob } from "@/queue/jobs";
+import {
+  addSnippetToMeiliIndexJob,
+  addSnippetToQdrantIndexJob,
+  addSummaryJob,
+} from "@/queue/jobs";
 import { revalidateTag } from "next/cache";
 import { z } from "zod/mini";
 
@@ -36,94 +39,48 @@ export const POST = async (req: Request) => {
 
     const { title, description, code, language } = result.data;
 
-    console.log("Creating snippet...", new Date());
     const snippet = await createSnippet({
       createdBy: user.id,
       language,
       title,
-
       description,
       code,
     });
 
-    console.log("Snippet created:", snippet);
-
-    // await createAiAnalysis({
-    //   title,
-    //   description,
-    //   code,
-    //   language,
-    //   snippetId: snippet.id,
-    // });
-
-    console.log("Adding AI Analysis job...", new Date());
-    const aiAnalysisJob = await addSummaryJob({
-      title,
-      description,
-      code,
-      language,
-      snippetId: snippet.id,
-    });
-
-    console.log(
-      "AI Analysis job ID:",
-      aiAnalysisJob.id,
-      aiAnalysisJob,
-      "for snippet",
-      snippet.id,
-    );
-    await initializeIndex();
-
-    // TODO: OPTIMIZE: Only add code snippet to index if AI analysis is successful
-
-    await addCodeSnippet({
-      id: snippet.id,
-      title,
-      description,
-      language,
-      code,
-      createdAt: snippet.createdAt,
-    });
-
-    // await addNewSnippetToCollection({
-    //   id: snippet.id,
-    //   title,
-    //   description,
-    //   language,
-    //   code,
-    // });
-    const newSnippetIndexJob = await addSnippetToQdrantIndexJob({
-      data: {
+    await Promise.all([
+      addSummaryJob({
+        title,
+        description,
+        code,
+        language,
+        snippetId: snippet.id,
+      }),
+      addSnippetToQdrantIndexJob({
+        data: { id: snippet.id, title, description, language, code },
+        priority: 1,
+      }),
+      addSnippetToMeiliIndexJob({
         id: snippet.id,
         title,
         description,
         language,
         code,
-      },
-      priority: 1,
-    });
-    console.log(
-      "New Snippet index job ID:",
-      newSnippetIndexJob.id,
-      newSnippetIndexJob,
-      "for snippet",
-      snippet.id,
-    );
+        createdAt: snippet.createdAt ?? undefined,
+      }),
+    ]);
 
+    revalidateTag(`snippets-${snippet.id}`, "max");
     revalidateTag(`snippets-${language}`, "max");
+
     return Response.json(
       {
         success: true,
-        data: {
-          snippet: {
-            id: snippet.id,
-          },
-        },
+        data: { snippet: { id: snippet.id } },
       },
       { status: 201 },
     );
   } catch (error) {
-    console.log("Error while creating snippet", error);
+    console.error("Error while creating snippet", error);
     return Response.json(
       {
         error: {
@@ -196,26 +153,18 @@ export const PATCH = async (req: Request) => {
       changeDescription,
     });
 
-    await initializeIndex();
-
-    await addCodeSnippet({
+    await addSnippetToMeiliIndexJob({
       id: snippetData.id,
       title,
       description,
       language: snippetData.language,
       code,
-      createdAt: newVersion[0].createdAt,
+      createdAt: newVersion[0].createdAt ?? undefined,
     });
 
-    return Response.json(
-      {
-        success: true,
-        data: {},
-      },
-      { status: 200 },
-    );
+    return Response.json({ success: true, data: {} }, { status: 200 });
   } catch (error) {
-    console.log("Error while editing snippet", error);
+    console.error("Error while editing snippet", error);
     return Response.json(
       {
         error: {

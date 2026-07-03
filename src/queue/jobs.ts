@@ -1,11 +1,18 @@
-import { aiCodeAnalysisQueue, qdrantSnippetIndexQueue } from "./queues";
-import { NewSnippetIndex, SummaryTaskData } from "./types";
+import {
+  aiCodeAnalysisQueue,
+  meiliIndexQueue,
+  qdrantSnippetIndexQueue,
+} from "./queues";
+import {
+  MeiliIndexTaskData,
+  NewSnippetIndex,
+  SummaryTaskData,
+} from "./types";
 
 export async function addSummaryJob(
   data: SummaryTaskData,
   priority: number = 0
 ) {
-  console.log("Adding AI Analysis job...", data, new Date());
   const job = await aiCodeAnalysisQueue.add(`generate-ai-summary`, data, {
     priority,
     delay: 0,
@@ -26,7 +33,6 @@ export async function addSnippetToQdrantIndexJob({
   data: NewSnippetIndex;
   priority: number;
 }) {
-  console.log("Adding Snippet to Qdrant index job...", data, new Date());
   const job = await qdrantSnippetIndexQueue.add(
     `add-snippet-to-qdrant-index`,
     data,
@@ -36,5 +42,13 @@ export async function addSnippetToQdrantIndexJob({
     }
   );
 
+  return job;
+}
+
+export async function addSnippetToMeiliIndexJob(data: MeiliIndexTaskData) {
+  const job = await meiliIndexQueue.add(`add-snippet-to-meili-index`, data, {
+    priority: 1,
+    delay: 0,
+  });
   return job;
 }
